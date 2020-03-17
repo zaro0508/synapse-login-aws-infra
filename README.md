@@ -1,2 +1,2 @@
 # SynapseLoginScipoolprodSC-infra
-Infrastructor for the SynapseLoginScipoolprodSC application.
+Infrastructor for the Synapse login application to the AWS service catalog on org-sagebase-scipoolprod
