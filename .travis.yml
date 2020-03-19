@@ -12,15 +12,14 @@ install:
   - pip install pre-commit sceptre sceptre-ssm-resolver
 stages:
   - name: validate
-#  - name: deploy
-#    if: type = push
+  - name: deploy
+    if: type = push
 jobs:
   include:
     - stage: validate
       script:
         - pre-commit autoupdate
         - pre-commit run --all-files
-#    - stage: deploy
-#      script:
-#        - sceptre launch common --yes
-#        - sceptre launch $TRAVIS_BRANCH --yes
+    - stage: deploy
+      script:
+        - sceptre launch scipoolprod --yes

@@ -1,0 +1,571 @@
+Description: Resources for application
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  AppDeployBucketName:
+    Type: String
+  AppHealthcheckUrl:
+    Type: String
+    Description: The AWS EB health check path
+    Default: "/"
+  AutoScalingMaxSize:
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 4
+  AutoScalingMinSize:
+    Type: Number
+    Default: 1
+    MinValue: 1
+    MaxValue: 2
+  BeanstalkHealthReportingSystem:
+    Type: String
+    Default: basic
+    AllowedValues:
+      - basic
+      - enhanced
+    ConstraintDescription: must be either basic or enhanced
+  SnsBounceNotificationEndpoint:
+    Type: String
+    Description: Email address for SNS bounce notifications
+  SnsNotificationEndpoint:
+    Type: String
+    Description: Email address for AWS SNS notifications
+  DNSDomain:
+    Type: String
+    Description: DNS Domain name for deployment
+    Default: "scipoolprod.org"
+  DNSHostname:
+    Type: String
+    Description: DNS Hostname for deployment
+  EC2InstanceType:
+    Type: String
+    Description: Instance type to use for Elastic Beanstalk Instances
+    Default: "t3.small"
+    AllowedValues:
+      - t3.nano
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - t3.2xlarge
+  RollingUpdateType:
+    Type: String
+    Default: "Time"
+    AllowedValues:
+      - Time
+      - Health
+      - Immutable
+  RollingUpdateDeploymentPolicy:
+    Type: String
+    Default: "Rolling"
+    AllowedValues:
+      - AllAtOnce
+      - Rolling
+      - RollingWithAdditionalBatch
+      - Immutable
+  SynapseOAuthClientId:
+    Type: String
+    Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
+  SynapseOAuthClientSecret:
+    Type: String
+    NoEcho: true
+    Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
+  VpcName:
+    Type: String
+    Description: The VPC for this application
+Resources:
+  LoadBalancerAccessLogsBucket:
+    Type: 'AWS::S3::Bucket'
+  LoadBalancerAccessLogsBucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket: !Ref LoadBalancerAccessLogsBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: ModAccess
+            Action:
+              - 's3:PutObject'
+            Effect: Allow
+            Resource:
+              - !Join
+                - ''
+                - - !GetAtt LoadBalancerAccessLogsBucket.Arn
+                  - '/*'
+            Principal:
+              AWS:
+                - 127311923021
+  BeanstalkConfigurationTemplate:
+    Type: 'AWS::ElasticBeanstalk::ConfigurationTemplate'
+    Properties:
+      ApplicationName: !ImportValue
+                       'Fn::Sub': '${AWS::Region}-synapse-login-base-BeanstalkAppName'
+      SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8.5 Java 8'
+      OptionSettings:
+        # EB environment options
+        - Namespace: 'aws:autoscaling:asg'
+          OptionName: MaxSize
+          Value: !Ref AutoScalingMaxSize
+        - Namespace: 'aws:autoscaling:asg'
+          OptionName: MinSize
+          Value: !Ref AutoScalingMinSize
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: IamInstanceProfile
+          Value: !Ref InstanceProfile
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: InstanceType
+          Value: !Ref EC2InstanceType
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: SecurityGroups
+          Value: !Ref InstanceSecurityGroup
+        - Namespace: 'aws:autoscaling:updatepolicy:rollingupdate'
+          OptionName: RollingUpdateEnabled
+          Value: 'true'
+        - Namespace: 'aws:autoscaling:updatepolicy:rollingupdate'
+          OptionName: RollingUpdateType
+          Value: !Ref RollingUpdateType
+        - Namespace: 'aws:elasticbeanstalk:command'
+          OptionName: DeploymentPolicy
+          Value: !Ref RollingUpdateDeploymentPolicy
+        - Namespace: 'aws:elasticbeanstalk:command'
+          OptionName: BatchSizeType
+          Value: 'Fixed'
+        - Namespace: 'aws:elasticbeanstalk:command'
+          OptionName: BatchSize
+          Value: '1'
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: ELBSubnets
+          Value: !Join
+            - ','
+            - - !ImportValue
+                'Fn::Sub': '${AWS::Region}-${VpcName}-PublicSubnet'
+              - !ImportValue
+                'Fn::Sub': '${AWS::Region}-${VpcName}-PublicSubnet1'
+              - !ImportValue
+                'Fn::Sub': '${AWS::Region}-${VpcName}-PublicSubnet2'
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: Subnets
+          Value: !Join
+            - ','
+            - - !ImportValue
+                'Fn::Sub': '${AWS::Region}-${VpcName}-PrivateSubnet'
+              - !ImportValue
+                'Fn::Sub': '${AWS::Region}-${VpcName}-PrivateSubnet1'
+              - !ImportValue
+                'Fn::Sub': '${AWS::Region}-${VpcName}-PrivateSubnet2'
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: VPCId
+          Value: !ImportValue
+                 'Fn::Sub': '${AWS::Region}-${VpcName}-VPCId'
+        - Namespace: 'aws:ec2:vpc'
+          OptionName: AssociatePublicIpAddress
+          Value: 'false'
+        - Namespace: 'aws:elasticbeanstalk:application'
+          OptionName: Application Healthcheck URL
+          Value: !Ref AppHealthcheckUrl
+        - Namespace: 'aws:elasticbeanstalk:cloudwatch:logs'
+          OptionName: StreamLogs
+          Value: 'true'
+        - Namespace: 'aws:elasticbeanstalk:cloudwatch:logs'
+          OptionName: DeleteOnTerminate
+          Value: 'true'
+        - Namespace: 'aws:elasticbeanstalk:cloudwatch:logs'
+          OptionName: RetentionInDays
+          Value: '90'
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: ServiceRole
+          Value: !ImportValue
+                'Fn::Sub': '${AWS::Region}-synapse-login-base-BeanstalkServiceRole'
+        - Namespace: 'aws:elasticbeanstalk:environment:process:default'
+          OptionName: Protocol
+          Value: 'HTTP'
+        - Namespace: 'aws:elasticbeanstalk:environment:process:default'
+          OptionName: HealthCheckPath
+          Value: !Ref AppHealthcheckUrl
+        - Namespace: 'aws:elasticbeanstalk:healthreporting:system'
+          OptionName: SystemType
+          Value: !Ref BeanstalkHealthReportingSystem
+        - Namespace: 'aws:elasticbeanstalk:hostmanager'
+          OptionName: LogPublicationControl
+          Value: 'true'
+        - Namespace: 'aws:elasticbeanstalk:xray'
+          OptionName: XRayEnabled
+          Value: 'false'
+        - Namespace: 'aws:elasticbeanstalk:environment'
+          OptionName: LoadBalancerType
+          Value: 'application'
+        - Namespace: 'aws:elbv2:loadbalancer'
+          OptionName: AccessLogsS3Bucket
+          Value: !Ref LoadBalancerAccessLogsBucket
+        - Namespace: 'aws:elbv2:loadbalancer'
+          OptionName: AccessLogsS3Enabled
+          Value: 'true'
+        - Namespace: 'aws:elbv2:listener:default'
+          OptionName: Protocol
+          Value: HTTP
+        - Namespace: 'aws:elbv2:listener:443'
+          OptionName: Protocol
+          Value: HTTPS
+        - Namespace: 'aws:elbv2:listener:443'
+          OptionName: SSLCertificateArns
+          Value: !ImportValue
+                 'Fn::Sub': '${AWS::Region}-synapse-login-base-SSLCertificate'
+        # Application environment options
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: synapse.oauth.client.id
+          Value: !Ref SynapseOAuthClientId
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: synapse.oauth.client.secret
+          Value: !Ref SynapseOAuthClientSecret
+  BeanstalkEnvironment:
+    Type: 'AWS::ElasticBeanstalk::Environment'
+    Properties:
+      ApplicationName: !ImportValue
+                       'Fn::Sub': '${AWS::Region}-synapse-login-base-BeanstalkAppName'
+      TemplateName: !Ref BeanstalkConfigurationTemplate
+      EnvironmentName: !Join
+        - '-'
+        - - !Ref 'AWS::StackName'
+      Tier:
+        Name: WebServer
+        Type: Standard
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: !Join
+        - '-'
+        - - !Ref 'AWS::StackName'
+          - InstanceSecurityGroup
+      GroupDescription: EC2 Security Group
+      VpcId: !ImportValue
+             'Fn::Sub': '${AWS::Region}-${VpcName}-VPCId'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+  LoadBalancerSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Load Balancer Security Group
+      VpcId: !ImportValue
+             'Fn::Sub': '${AWS::Region}-${VpcName}-VPCId'
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 443
+          ToPort: 443
+          IpProtocol: tcp
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+          IpProtocol: tcp
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          ToPort: 80
+          IpProtocol: tcp
+  AppDeployBucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Ref AppDeployBucketName
+  Route53RecordSet:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneName: !Join
+        - ''
+        - - !Ref DNSDomain
+          - .
+      Name: !Join
+        - ''
+        - - !Ref DNSHostname
+          - .
+          - !Ref DNSDomain
+          - .
+      Type: CNAME
+      TTL: 900
+      ResourceRecords:
+        - !GetAtt
+          - BeanstalkEnvironment
+          - EndpointURL
+  AppHealthCheck:
+    Type: "AWS::Route53::HealthCheck"
+    DependsOn: Route53RecordSet
+    Properties:
+      HealthCheckConfig:
+        FullyQualifiedDomainName: !GetAtt BeanstalkEnvironment.EndpointURL
+        Port: 443
+        Type: "HTTPS"
+        ResourcePath: "/"
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Join
+            - '-'
+            - - !Ref 'AWS::StackName'
+              - AppHealthCheck
+  AppDeployBucketManagedPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ListAccess
+            Action:
+              - 's3:ListBucket'
+              - 's3:GetBucketLocation'
+            Effect: Allow
+            Resource: !GetAtt AppDeployBucket.Arn
+          - Sid: ModAccess
+            Action:
+              - 's3:PutObject'
+              - 's3:PutObjectAcl'
+              - 's3:GetObject'
+              - 's3:GetObjectAcl'
+              - 's3:DeleteObject'
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - !GetAtt AppDeployBucket.Arn
+                - '/*'
+  SsmManagedPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: GetParamAccess
+            Action:
+              - 'ssm:*'
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - 'arn:aws:ssm:'
+                - !Ref AWS::Region
+                - ':'
+                - !Ref AWS::AccountId
+                - ':'
+                - 'parameter/'
+                - !Ref AWS::StackName
+                - '/*'
+  KmsDecryptManagedPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ReadAccess
+            Action:
+              - 'kms:ListKeys'
+              - 'kms:ListAliases'
+              - 'kms:DescribeKey'
+              - 'kms:ListKeyPolicies'
+              - 'kms:GetKeyPolicy'
+              - 'kms:GetKeyRotationStatus'
+              - 'iam:ListUsers'
+              - 'iam:ListRoles'
+            Effect: Allow
+            Resource: !GetAtt KmsKey.Arn
+          - Sid: DecryptAccess
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+            Effect: Allow
+            Resource: !GetAtt KmsKey.Arn
+  # cloudwatch integration https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.cloudwatchlogs.html
+  CloudwatchIntegrationManagedPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:GetLogEvents'
+              - 'logs:PutLogEvents'
+              - 'logs:DescribeLogGroups'
+              - 'logs:DescribeLogStreams'
+              - 'logs:PutRetentionPolicy'
+            Effect: Allow
+            Resource:
+              - !Sub 'arn:aws:logs:${AWS::Region}:*:*'
+  InstanceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
+        - 'arn:aws:iam::aws:policy/AmazonSNSFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
+        - !Ref AppDeployBucketManagedPolicy
+        - !Ref CloudwatchIntegrationManagedPolicy
+        - !Ref KmsDecryptManagedPolicy
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref InstanceRole
+  SNSBounceTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      Subscription:
+        -
+          Endpoint: !Ref SnsBounceNotificationEndpoint
+          Protocol: "email"
+  SNSTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      Subscription:
+        -
+          Endpoint: !Ref SnsNotificationEndpoint
+          Protocol: "email"
+  CloudwatchLogsLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Join
+        - '/'
+        - - /aws/elasticbeanstalk
+          - !Ref 'AWS::StackName'
+          - var/log/tomcat8/catalina.out
+      RetentionInDays: 90
+  AppServiceUserAccessKey:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref AppServiceUser
+  AppServiceUser:
+    Type: 'AWS::IAM::User'
+    Properties:
+      Groups:
+        - !Ref AppServiceUserGroup
+  AppServiceUserGroup:
+    Type: 'AWS::IAM::Group'
+    Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+        - arn:aws:iam::aws:policy/AmazonSESFullAccess
+  KmsKey:
+    Type: "AWS::KMS::Key"
+    Properties:
+      Description: !Join
+        - '-'
+        - - !Ref AWS::StackName
+          - "KmsKey"
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: "Allow administration of the key"
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - !Join
+                  - ''
+                  - - 'arn:aws:iam::'
+                    - !Ref AWS::AccountId
+                    - ':root'
+                - !ImportValue
+                  'Fn::Sub': '${AWS::Region}-bootstrap-CfServiceRoleArn'
+            Action:
+              - "kms:Create*"
+              - "kms:Describe*"
+              - "kms:Enable*"
+              - "kms:List*"
+              - "kms:Put*"
+              - "kms:Update*"
+              - "kms:Revoke*"
+              - "kms:Disable*"
+              - "kms:Get*"
+              - "kms:Delete*"
+              - "kms:ScheduleKeyDeletion"
+              - "kms:CancelKeyDeletion"
+            Resource: "*"
+          -
+            Sid: "Allow use of the key"
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - !Join
+                  - ''
+                  - - 'arn:aws:iam::'
+                    - !Ref AWS::AccountId
+                    - ':root'
+                - !ImportValue
+                  'Fn::Sub': '${AWS::Region}-bootstrap-CfServiceRoleArn'
+                - !GetAtt AppServiceUser.Arn
+                - !ImportValue
+                  'Fn::Sub': '${AWS::Region}-synapse-login-base-BeanstalkServiceRoleArn'
+            Action:
+              - "kms:Encrypt"
+              - "kms:Decrypt"
+              - "kms:ReEncrypt*"
+              - "kms:GenerateDataKey*"
+              - "kms:DescribeKey"
+            Resource: "*"
+  KmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Join
+        - ''
+        - - 'alias/'
+          - !Ref AWS::StackName
+          - '/KmsKey'
+      TargetKeyId: !Ref KmsKey
+Outputs:
+  AppPublicEndpoint:
+    Value: !Join
+      - ''
+      - - 'https://'
+        - !Ref DNSHostname
+        - .
+        - !Ref DNSDomain
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-AppPublicEndpoint'
+  KmsKey:
+    Value: !Ref KmsKey
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-KmsKey'
+  KmsKeyAlias:
+    Value: !Ref KmsKeyAlias
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-KmsKeyAlias'
+  AppDeployBucket:
+    Value: !Ref AppDeployBucket
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-AppDeployBucket'
+  BeanstalkEnvironment:
+    Value: !Ref BeanstalkEnvironment
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-BeanstalkEnvironment'
+  BeanstalkEnvironmentUrl:
+    Value: !Join
+      - ''
+      - - 'http://'
+        - !GetAtt
+          - BeanstalkEnvironment
+          - EndpointURL
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-BeanstalkEnvironmentUrl'
+  InstanceSecurityGroup:
+    Value: !Ref InstanceSecurityGroup
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-InstanceSecurityGroup'
+  AppServiceUserAccessKey:
+    Value: !Ref AppServiceUserAccessKey
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-AppServiceUserAccessKey'
+  AppServiceUserSecretAccessKey:
+    Value: !GetAtt AppServiceUserAccessKey.SecretAccessKey
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-AppServiceUserSecretAccessKey'
