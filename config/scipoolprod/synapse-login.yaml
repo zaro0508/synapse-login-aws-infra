@@ -13,6 +13,7 @@ parameters:
   DNSHostname: "synapse-login"
   DNSDomain: "scipoolprod.org"
   EC2InstanceType: "t3.nano"
-  SynapseOAuthClientId: "100050"
-  SynapseOAuthClientSecret: "secret"
   VpcName: "internalpoolvpc"
+  LoginSessionTimeout: "4320"
+  SynapseOAuthClientId: "100050"
+  SynapseOAuthClientSecret: !ssm /synapse-login/SynapseOAuthClientSecret

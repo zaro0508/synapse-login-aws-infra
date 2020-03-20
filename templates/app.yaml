@@ -64,16 +64,19 @@ Parameters:
       - Rolling
       - RollingWithAdditionalBatch
       - Immutable
-  SynapseOAuthClientId:
-    Type: String
-    Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
-  SynapseOAuthClientSecret:
-    Type: String
-    NoEcho: true
-    Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
   VpcName:
     Type: String
     Description: The VPC for this application
+  LoginSessionTimeout:
+    Type: Number
+    Description: The login session timeout
+  SynapseOauthClientId:
+    Type: String
+    Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
+  SynapseOauthClientSecret:
+    Type: String
+    NoEcho: true
+    Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
 Resources:
   LoadBalancerAccessLogsBucket:
     Type: 'AWS::S3::Bucket'
@@ -213,11 +216,17 @@ Resources:
                  'Fn::Sub': '${AWS::Region}-synapse-login-base-SSLCertificate'
         # Application environment options
         - Namespace: 'aws:elasticbeanstalk:application:environment'
-          OptionName: synapse.oauth.client.id
-          Value: !Ref SynapseOAuthClientId
+          OptionName: SESSION_TIMEOUT_SECONDS
+          Value: !Ref LoginSessionTimeout
         - Namespace: 'aws:elasticbeanstalk:application:environment'
-          OptionName: synapse.oauth.client.secret
-          Value: !Ref SynapseOAuthClientSecret
+          OptionName: AWS_REGION
+          Value: !Ref AWS::Region
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SYNAPSE_OAUTH_CLIENT_ID
+          Value: !Ref SynapseOauthClientId
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SYNAPSE_OAUTH_CLIENT_SECRET
+          Value: !Ref SynapseOauthClientSecret
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
