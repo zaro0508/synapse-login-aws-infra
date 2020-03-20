@@ -4,3 +4,5 @@ stack_tags:
   Department: "Platform"
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
+parameters:
+  DNSDomainName: "scipoolprod.org"
