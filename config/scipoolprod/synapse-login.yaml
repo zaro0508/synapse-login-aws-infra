@@ -14,6 +14,7 @@ parameters:
   DNSDomain: "scipoolprod.org"
   EC2InstanceType: "t3.nano"
   VpcName: "internalpoolvpc"
-  LoginSessionTimeout: "4320"
-  SynapseOAuthClientId: "100050"
-  SynapseOAuthClientSecret: !ssm /synapse-login/SynapseOAuthClientSecret
+  SessionTimeoutSeconds: "28800"
+  SynapseOauthClientId: "100050"
+  SynapseOauthClientSecret: !ssm /synapse-login/SynapseOauthClientSecret
+  TeamToRoleArnMap: '[{"teamId":"273957","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"}]'

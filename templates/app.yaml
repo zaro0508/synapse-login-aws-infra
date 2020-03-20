@@ -67,9 +67,12 @@ Parameters:
   VpcName:
     Type: String
     Description: The VPC for this application
-  LoginSessionTimeout:
+  SessionTimeoutSeconds:
     Type: Number
-    Description: The login session timeout
+    Description: The login session timeout in seconds
+    Default: 14400
+    MinValue: 3600
+    MaxValue: 43200
   SynapseOauthClientId:
     Type: String
     Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
@@ -77,6 +80,9 @@ Parameters:
     Type: String
     NoEcho: true
     Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
+  TeamToRoleArnMap:
+    Type: String
+    Description: The mapping of Synapse team to AWS role
 Resources:
   LoadBalancerAccessLogsBucket:
     Type: 'AWS::S3::Bucket'
@@ -217,7 +223,7 @@ Resources:
         # Application environment options
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: SESSION_TIMEOUT_SECONDS
-          Value: !Ref LoginSessionTimeout
+          Value: !Ref SessionTimeoutSeconds
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: AWS_REGION
           Value: !Ref AWS::Region
@@ -227,6 +233,9 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: SYNAPSE_OAUTH_CLIENT_SECRET
           Value: !Ref SynapseOauthClientSecret
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: TEAM_TO_ROLE_ARN_MAP
+          Value: !Ref TeamToRoleArnMap
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
