@@ -1,0 +1,6 @@
+template_path: base.yaml
+stack_name: synapse-login-base
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"

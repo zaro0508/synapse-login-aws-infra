@@ -1,0 +1,69 @@
+Description: Common resources for all stacks
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  DNSDomainName:
+    Description: DNS Domain name for application
+    Type: String
+Resources:
+  BeanstalkServiceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - elasticbeanstalk.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                sts:ExternalId: elasticbeanstalk
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth'
+        - 'arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkService'
+        - 'arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM'
+  BeanstalkApplication:
+    Type: 'AWS::ElasticBeanstalk::Application'
+    Properties:
+      ApplicationName: 'synapse-login-sc'
+      ResourceLifecycleConfig:
+        ServiceRole: !GetAtt BeanstalkServiceRole.Arn
+        VersionLifecycleConfig:
+          MaxAgeRule:
+            DeleteSourceFromS3: true
+            Enabled: true
+            MaxAgeInDays: 90
+  SSLCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Join
+        - '.'
+        - - '*'
+          - !Ref DNSDomainName
+      DomainValidationOptions:
+        - DomainName: !Join
+            - '.'
+            - - '*'
+              - !Ref DNSDomainName
+          ValidationDomain: !Ref DNSDomainName
+      ValidationMethod: DNS
+Outputs:
+  BeanstalkAppName:
+    Value: !Ref BeanstalkApplication
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-BeanstalkAppName'
+  BeanstalkServiceRole:
+    Value: !Ref BeanstalkServiceRole
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-BeanstalkServiceRole'
+  BeanstalkServiceRoleArn:
+    Value: !GetAtt BeanstalkServiceRole.Arn
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-BeanstalkServiceRoleArn'
+  SSLCertificate:
+    Value: !Ref SSLCertificate
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-SSLCertificate'

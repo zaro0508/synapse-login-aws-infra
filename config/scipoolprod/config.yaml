@@ -1,0 +1,2 @@
+template_bucket_name: "bootstrap-awss3cloudformationbucket-ut887whv3ote"
+template_key_prefix: {{ environment_variable.TRAVIS_BRANCH | default("testing") }}
