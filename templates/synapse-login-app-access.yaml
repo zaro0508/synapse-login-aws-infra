@@ -1,0 +1,100 @@
+Description: Setup service access to deploy synapse login apps
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  ApplicationName:
+    Type: String
+Resources:
+  ServiceUser:
+    Type: 'AWS::IAM::User'
+  ServiceUserAccessKey:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !Ref ServiceUser
+  ServiceUserSecretAccessKey:
+    Type: 'AWS::IAM::AccessKey'
+    Properties:
+      UserName: !GetAtt ServiceUserAccessKey.SecretAccessKey
+  ServiceRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - !ImportValue {'Fn::Sub': '${AWS::Region}-bootstrap-TravisUserArn'}
+                - !ImportValue {'Fn::Sub': '${AWS::Region}-accounts-AWSIAMKhaiDoUser'}
+                - !ImportValue {'Fn::Sub': '${AWS::Region}-accounts-AWSIAMBruceHoffUser'}
+                - !GetAtt ServiceUser.Arn
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - !Ref ServicePolicy
+  ServicePolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Action:
+              - elasticbeanstalk:CreateApplication
+              - elasticbeanstalk:DeleteApplication
+            Resource:
+              - "*"
+          - Effect: Deny
+            Action:
+              - elasticbeanstalk:CreateApplicationVersion
+              - elasticbeanstalk:CreateConfigurationTemplate
+              - elasticbeanstalk:CreateEnvironment
+              - elasticbeanstalk:DeleteApplicationVersion
+              - elasticbeanstalk:DeleteConfigurationTemplate
+              - elasticbeanstalk:DeleteEnvironmentConfiguration
+              - elasticbeanstalk:DescribeApplicationVersions
+              - elasticbeanstalk:DescribeConfigurationOptions
+              - elasticbeanstalk:DescribeConfigurationSettings
+              - elasticbeanstalk:DescribeEnvironmentResources
+              - elasticbeanstalk:DescribeEnvironments
+              - elasticbeanstalk:DescribeEvents
+              - elasticbeanstalk:DeleteEnvironmentConfiguration
+              - elasticbeanstalk:RebuildEnvironment
+              - elasticbeanstalk:RequestEnvironmentInfo
+              - elasticbeanstalk:RestartAppServer
+              - elasticbeanstalk:RetrieveEnvironmentInfo
+              - elasticbeanstalk:SwapEnvironmentCNAMEs
+              - elasticbeanstalk:TerminateEnvironment
+              - elasticbeanstalk:UpdateApplicationVersion
+              - elasticbeanstalk:UpdateConfigurationTemplate
+              - elasticbeanstalk:UpdateEnvironment
+              - elasticbeanstalk:RetrieveEnvironmentInfo
+              - elasticbeanstalk:ValidateConfigurationSettings
+            Resource:
+              - "*"
+            Condition:
+              StringNotEquals:
+                elasticbeanstalk:InApplication:
+                  - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${ApplicationName}'
+Outputs:
+  ServiceUser:
+    Value: !Ref ServiceUser
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceUser'
+  ServiceUserArn:
+    Value: !GetAtt ServiceUser.Arn
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceUserArn'
+  ServiceUserAccessKey:
+    Value: !Ref ServiceUserAccessKey
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceUserAccessKey'
+  ServiceUserSecretAccessKey:
+    Value: !GetAtt ServiceUserAccessKey.SecretAccessKey
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceUserSecretAccessKey'
+  ServicePolicyArn:
+    Value: !Ref ServicePolicy
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServicePolicyArn'

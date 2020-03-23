@@ -1,0 +1,6 @@
+template_path: synapse-login-app-access.yaml
+stack_name: synapse-login-scipoolprod-access
+dependencies:
+  - prod/accounts.yaml
+parameters:
+  ApplicationName: synapse-login-scipoolprod
