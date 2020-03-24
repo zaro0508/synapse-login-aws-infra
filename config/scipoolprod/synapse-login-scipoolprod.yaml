@@ -1,0 +1,21 @@
+template_path: app.yaml
+stack_name: synapse-login-scipoolprod
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+depedencies:
+  - scipoolprod/synapse-login-scipoolprod-base.yaml
+parameters:
+  AppDeployBucketName: "org-sagebase-scipoolprod-synapse-login-scipoolprod"
+  SnsBounceNotificationEndpoint: "aws.scipoolprod@sagebase.org"
+  SnsNotificationEndpoint: "aws.scipoolprod@sagebase.org"
+  DNSHostname: "synapse-login-scipoolprod"
+  DNSDomain: "scipoolprod.org"
+  EC2InstanceType: "t3.nano"
+  VpcName: "internalpoolvpc"
+  SessionTimeoutSeconds: "28800"
+  SynapseOauthClientId: "100050"
+  SynapseOauthClientSecret: !ssm /synapse-login-scipoolprod/SynapseOauthClientSecret
+  TeamToRoleArnMap: '[{"teamId":"273957","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"}]'
+  SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8 Java 8'

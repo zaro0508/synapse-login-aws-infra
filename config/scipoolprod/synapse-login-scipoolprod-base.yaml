@@ -1,0 +1,9 @@
+template_path: base.yaml
+stack_name: synapse-login-scipoolprod-base
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+parameters:
+  DNSDomainName: "scipoolprod.org"
+  BeanstalkAppName: "synapse-login"

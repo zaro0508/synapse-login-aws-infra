@@ -4,6 +4,9 @@ Parameters:
   DNSDomainName:
     Description: DNS Domain name for application
     Type: String
+  BeanstalkAppName:
+    Description: DNS Domain name for application
+    Type: String
 Resources:
   BeanstalkServiceRole:
     Type: 'AWS::IAM::Role'
@@ -28,7 +31,7 @@ Resources:
   BeanstalkApplication:
     Type: 'AWS::ElasticBeanstalk::Application'
     Properties:
-      ApplicationName: 'synapse-login-sc'
+      ApplicationName: !Ref BeanstalkAppName
       ResourceLifecycleConfig:
         ServiceRole: !GetAtt BeanstalkServiceRole.Arn
         VersionLifecycleConfig:
