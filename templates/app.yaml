@@ -3,10 +3,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   AppDeployBucketName:
     Type: String
-  AppHealthcheckUrl:
-    Type: String
-    Description: The AWS EB health check path
-    Default: "/"
   AutoScalingMaxSize:
     Type: Number
     Default: 1
@@ -162,9 +158,6 @@ Resources:
         - Namespace: 'aws:ec2:vpc'
           OptionName: AssociatePublicIpAddress
           Value: 'false'
-        - Namespace: 'aws:elasticbeanstalk:application'
-          OptionName: Application Healthcheck URL
-          Value: !Ref AppHealthcheckUrl
         - Namespace: 'aws:elasticbeanstalk:cloudwatch:logs'
           OptionName: StreamLogs
           Value: 'true'
@@ -181,9 +174,6 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:environment:process:default'
           OptionName: Protocol
           Value: 'HTTP'
-        - Namespace: 'aws:elasticbeanstalk:environment:process:default'
-          OptionName: HealthCheckPath
-          Value: !Ref AppHealthcheckUrl
         - Namespace: 'aws:elasticbeanstalk:healthreporting:system'
           OptionName: SystemType
           Value: !Ref BeanstalkHealthReportingSystem
@@ -286,22 +276,6 @@ Resources:
         - !GetAtt
           - BeanstalkEnvironment
           - EndpointURL
-  AppHealthCheck:
-    Type: "AWS::Route53::HealthCheck"
-    DependsOn: Route53RecordSet
-    Properties:
-      HealthCheckConfig:
-        FullyQualifiedDomainName: !GetAtt BeanstalkEnvironment.EndpointURL
-        Port: 443
-        Type: "HTTPS"
-        ResourcePath: "/"
-      HealthCheckTags:
-        -
-          Key: "Name"
-          Value: !Join
-            - '-'
-            - - !Ref 'AWS::StackName'
-              - AppHealthCheck
   AppDeployBucketManagedPolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
