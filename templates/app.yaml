@@ -83,6 +83,10 @@ Parameters:
   TeamToRoleArnMap:
     Type: String
     Description: The mapping of Synapse team to AWS role
+  SolutionStackName:
+    Type: String
+    Description: The Beanstalk solution stack for the app
+    Default: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8.5 Java 8'
 Resources:
   LoadBalancerAccessLogsBucket:
     Type: 'AWS::S3::Bucket'
@@ -109,8 +113,8 @@ Resources:
     Type: 'AWS::ElasticBeanstalk::ConfigurationTemplate'
     Properties:
       ApplicationName: !ImportValue
-                       'Fn::Sub': '${AWS::Region}-synapse-login-base-BeanstalkAppName'
-      SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8.5 Java 8'
+                       'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-BeanstalkAppName'
+      SolutionStackName: !Ref SolutionStackName
       OptionSettings:
         # EB environment options
         - Namespace: 'aws:autoscaling:asg'
@@ -185,7 +189,7 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:environment'
           OptionName: ServiceRole
           Value: !ImportValue
-                'Fn::Sub': '${AWS::Region}-synapse-login-base-BeanstalkServiceRole'
+                'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-BeanstalkServiceRole'
         - Namespace: 'aws:elasticbeanstalk:environment:process:default'
           OptionName: Protocol
           Value: 'HTTP'
@@ -219,7 +223,7 @@ Resources:
         - Namespace: 'aws:elbv2:listener:443'
           OptionName: SSLCertificateArns
           Value: !ImportValue
-                 'Fn::Sub': '${AWS::Region}-synapse-login-base-SSLCertificate'
+                 'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-SSLCertificate'
         # Application environment options
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: SESSION_TIMEOUT_SECONDS
@@ -240,7 +244,7 @@ Resources:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
       ApplicationName: !ImportValue
-                       'Fn::Sub': '${AWS::Region}-synapse-login-base-BeanstalkAppName'
+                       'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-BeanstalkAppName'
       TemplateName: !Ref BeanstalkConfigurationTemplate
       EnvironmentName: !Join
         - '-'
@@ -457,22 +461,75 @@ Resources:
           - !Ref 'AWS::StackName'
           - var/log/tomcat8/catalina.out
       RetentionInDays: 90
-  AppServiceUserAccessKey:
+  ServiceUser:
+    Type: 'AWS::IAM::User'
+  ServiceUserAccessKey:
     Type: 'AWS::IAM::AccessKey'
     Properties:
-      UserName: !Ref AppServiceUser
-  AppServiceUser:
-    Type: 'AWS::IAM::User'
+      UserName: !Ref ServiceUser
+  ServiceRole:
+    Type: "AWS::IAM::Role"
     Properties:
-      Groups:
-        - !Ref AppServiceUserGroup
-  AppServiceUserGroup:
-    Type: 'AWS::IAM::Group'
-    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - !ImportValue {'Fn::Sub': '${AWS::Region}-bootstrap-TravisUserArn'}
+                - !GetAtt ServiceUser.Arn
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/AmazonSNSFullAccess
-        - arn:aws:iam::aws:policy/AmazonSESFullAccess
+        - !Ref ServicePolicy
+  # Enable management of elastic beanstalk app
+  # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.iam.managed-policies.html
+  ServicePolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Action:
+              - elasticbeanstalk:CreateApplication
+              - elasticbeanstalk:DeleteApplication
+            Resource:
+              - "*"
+          - Effect: Deny
+            Action:
+              - elasticbeanstalk:CreateApplicationVersion
+              - elasticbeanstalk:CreateConfigurationTemplate
+              - elasticbeanstalk:CreateEnvironment
+              - elasticbeanstalk:DeleteApplicationVersion
+              - elasticbeanstalk:DeleteConfigurationTemplate
+              - elasticbeanstalk:DeleteEnvironmentConfiguration
+              - elasticbeanstalk:DescribeApplicationVersions
+              - elasticbeanstalk:DescribeConfigurationOptions
+              - elasticbeanstalk:DescribeConfigurationSettings
+              - elasticbeanstalk:DescribeEnvironmentResources
+              - elasticbeanstalk:DescribeEnvironments
+              - elasticbeanstalk:DescribeEvents
+              - elasticbeanstalk:DeleteEnvironmentConfiguration
+              - elasticbeanstalk:RebuildEnvironment
+              - elasticbeanstalk:RequestEnvironmentInfo
+              - elasticbeanstalk:RestartAppServer
+              - elasticbeanstalk:RetrieveEnvironmentInfo
+              - elasticbeanstalk:SwapEnvironmentCNAMEs
+              - elasticbeanstalk:TerminateEnvironment
+              - elasticbeanstalk:UpdateApplicationVersion
+              - elasticbeanstalk:UpdateConfigurationTemplate
+              - elasticbeanstalk:UpdateEnvironment
+              - elasticbeanstalk:RetrieveEnvironmentInfo
+              - elasticbeanstalk:ValidateConfigurationSettings
+            Resource:
+              - "*"
+            Condition:
+              StringNotEquals:
+                elasticbeanstalk:InApplication:
+                  - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}'
   KmsKey:
     Type: "AWS::KMS::Key"
     Properties:
@@ -521,9 +578,9 @@ Resources:
                     - ':root'
                 - !ImportValue
                   'Fn::Sub': '${AWS::Region}-bootstrap-CfServiceRoleArn'
-                - !GetAtt AppServiceUser.Arn
+                - !GetAtt ServiceUser.Arn
                 - !ImportValue
-                  'Fn::Sub': '${AWS::Region}-synapse-login-base-BeanstalkServiceRoleArn'
+                  'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-BeanstalkServiceRoleArn'
             Action:
               - "kms:Encrypt"
               - "kms:Decrypt"
@@ -579,11 +636,27 @@ Outputs:
     Value: !Ref InstanceSecurityGroup
     Export:
       Name: !Sub '${AWS::Region}-${AWS::StackName}-InstanceSecurityGroup'
-  AppServiceUserAccessKey:
-    Value: !Ref AppServiceUserAccessKey
+  ServiceUser:
+    Value: !Ref ServiceUser
     Export:
-      Name: !Sub '${AWS::Region}-${AWS::StackName}-AppServiceUserAccessKey'
-  AppServiceUserSecretAccessKey:
-    Value: !GetAtt AppServiceUserAccessKey.SecretAccessKey
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceUser'
+  ServiceUserArn:
+    Value: !GetAtt ServiceUser.Arn
     Export:
-      Name: !Sub '${AWS::Region}-${AWS::StackName}-AppServiceUserSecretAccessKey'
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceUserArn'
+  ServiceUserAccessKey:
+    Value: !Ref ServiceUserAccessKey
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceUserAccessKey'
+  ServiceUserSecretAccessKey:
+    Value: !GetAtt ServiceUserAccessKey.SecretAccessKey
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceUserSecretAccessKey'
+  ServiceRole:
+    Value: !Ref ServiceRole
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceRole'
+  ServiceRoleArn:
+    Value: !GetAtt ServiceRole.Arn
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceRoleArn'
