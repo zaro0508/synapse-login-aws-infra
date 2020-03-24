@@ -14,8 +14,5 @@ parameters:
   DNSDomain: "scipoolprod.org"
   EC2InstanceType: "t3.nano"
   VpcName: "internalpoolvpc"
-  SessionTimeoutSeconds: "28800"
-  SynapseOauthClientId: "100050"
   SynapseOauthClientSecret: !ssm /synapse-login-scipoolprod/SynapseOauthClientSecret
-  TeamToRoleArnMap: '[{"teamId":"273957","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"}]'
   SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8 Java 8'
