@@ -483,53 +483,84 @@ Resources:
               - "sts:AssumeRole"
       Path: "/"
       ManagedPolicyArns:
-        - !Ref ServicePolicy
-  # Enable management of elastic beanstalk app
-  # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.iam.managed-policies.html
-  ServicePolicy:
+        - !Ref AppDeveloperPolicy
+        - !Ref BeanstalkDeveloperPolicy
+  # policies for service role
+  # https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.iam.example.resource.html
+  AppDeveloperPolicy:
     Type: 'AWS::IAM::ManagedPolicy'
     Properties:
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
-          - Effect: Deny
+          - Effect: Allow
             Action:
-              - elasticbeanstalk:CreateApplication
-              - elasticbeanstalk:DeleteApplication
-            Resource:
-              - "*"
-          - Effect: Deny
+              - ec2:*
+              - elasticloadbalancing:*
+              - autoscaling:*
+              - cloudwatch:*
+              - s3:*
+              - sns:*
+              - rds:*
+              - cloudformation:*
+            Resource: "*"
+  BeanstalkDeveloperPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllReadCallsAndAllVersionCallsInApplications
             Action:
-              - elasticbeanstalk:CreateApplicationVersion
-              - elasticbeanstalk:CreateConfigurationTemplate
-              - elasticbeanstalk:CreateEnvironment
-              - elasticbeanstalk:DeleteApplicationVersion
-              - elasticbeanstalk:DeleteConfigurationTemplate
-              - elasticbeanstalk:DeleteEnvironmentConfiguration
-              - elasticbeanstalk:DescribeApplicationVersions
-              - elasticbeanstalk:DescribeConfigurationOptions
-              - elasticbeanstalk:DescribeConfigurationSettings
-              - elasticbeanstalk:DescribeEnvironmentResources
-              - elasticbeanstalk:DescribeEnvironments
-              - elasticbeanstalk:DescribeEvents
-              - elasticbeanstalk:DeleteEnvironmentConfiguration
-              - elasticbeanstalk:RebuildEnvironment
+              - elasticbeanstalk:Describe*
               - elasticbeanstalk:RequestEnvironmentInfo
-              - elasticbeanstalk:RestartAppServer
               - elasticbeanstalk:RetrieveEnvironmentInfo
-              - elasticbeanstalk:SwapEnvironmentCNAMEs
-              - elasticbeanstalk:TerminateEnvironment
+              - elasticbeanstalk:CreateApplicationVersion
+              - elasticbeanstalk:DeleteApplicationVersion
               - elasticbeanstalk:UpdateApplicationVersion
-              - elasticbeanstalk:UpdateConfigurationTemplate
-              - elasticbeanstalk:UpdateEnvironment
-              - elasticbeanstalk:RetrieveEnvironmentInfo
-              - elasticbeanstalk:ValidateConfigurationSettings
+            Effect: Allow
             Resource:
               - "*"
             Condition:
-              StringNotEquals:
+              StringEquals:
                 elasticbeanstalk:InApplication:
                   - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}'
+          - Sid: AllReadCallsOnApplications
+            Action:
+              - elasticbeanstalk:DescribeApplications
+              - elasticbeanstalk:DescribeEvents
+            Effect: Allow
+            Resource:
+              - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}'
+          - Sid: UpdateEnvironmentInApplications
+            Action:
+              - elasticbeanstalk:UpdateEnvironment
+            Effect: Allow
+            Resource:
+              - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}'
+              - arn:aws:elasticbeanstalk:us-east-2:123456789012:environment/app1/app1-staging*
+            Condition:
+              StringEquals:
+                elasticbeanstalk:InApplication:
+                  - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}'
+              StringLike:
+                elasticbeanstalk:FromApplicationVersion:
+                  - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}/*'
+          - Sid: AllReadCallsOnSolutionStacks
+            Action:
+              - elasticbeanstalk:ListAvailableSolutionStacks
+              - elasticbeanstalk:DescribeConfigurationOptions
+              - elasticbeanstalk:ValidateConfigurationSettings
+            Effect: Allow
+            Resource:
+              - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}::solutionstack/*'
+          - Sid: AllNonResourceCalls
+            Action:
+              - elasticbeanstalk:CheckDNSAvailability
+              - elasticbeanstalk:CreateStorageLocation
+            Effect: Allow
+            Resource:
+              - "*"
   KmsKey:
     Type: "AWS::KMS::Key"
     Properties:
