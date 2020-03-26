@@ -3,9 +3,9 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   AppDeployBucketName:
     Type: String
-  AppHealthcheckUrl:
+  AppHealthcheckPath:
     Type: String
-    Description: The AWS EB health check path
+    Description: The application health check path
     Default: "/health"
   AutoScalingMaxSize:
     Type: Number
@@ -164,7 +164,7 @@ Resources:
           Value: 'false'
         - Namespace: 'aws:elasticbeanstalk:application'
           OptionName: Application Healthcheck URL
-          Value: !Ref AppHealthcheckUrl
+          Value: !Ref AppHealthcheckPath
         - Namespace: 'aws:elasticbeanstalk:cloudwatch:logs'
           OptionName: StreamLogs
           Value: 'true'
@@ -183,7 +183,7 @@ Resources:
           Value: 'HTTP'
         - Namespace: 'aws:elasticbeanstalk:environment:process:default'
           OptionName: HealthCheckPath
-          Value: !Ref AppHealthcheckUrl
+          Value: !Ref AppHealthcheckPath
         - Namespace: 'aws:elasticbeanstalk:healthreporting:system'
           OptionName: SystemType
           Value: !Ref BeanstalkHealthReportingSystem
@@ -291,15 +291,10 @@ Resources:
     DependsOn: Route53RecordSet
     Properties:
       HealthCheckConfig:
-        FullyQualifiedDomainName: !Join
-          - ''
-          - - 'https://'
-            - !Ref DNSHostname
-            - .
-            - !Ref DNSDomain
+        FullyQualifiedDomainName: !Sub '${DNSHostname}.${DNSDomain}'
         Port: 443
         Type: "HTTPS"
-        ResourcePath: !Ref AppHealthcheckUrl
+        ResourcePath: !Ref AppHealthcheckPath
       HealthCheckTags:
         -
           Key: "Name"
