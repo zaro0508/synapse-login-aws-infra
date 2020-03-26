@@ -6,7 +6,7 @@ Parameters:
   AppHealthcheckUrl:
     Type: String
     Description: The AWS EB health check path
-    Default: "/"
+    Default: "/health"
   AutoScalingMaxSize:
     Type: Number
     Default: 1
@@ -291,10 +291,15 @@ Resources:
     DependsOn: Route53RecordSet
     Properties:
       HealthCheckConfig:
-        FullyQualifiedDomainName: !GetAtt BeanstalkEnvironment.EndpointURL
+        FullyQualifiedDomainName: !Join
+          - ''
+          - - 'https://'
+            - !Ref DNSHostname
+            - .
+            - !Ref DNSDomain
         Port: 443
         Type: "HTTPS"
-        ResourcePath: "/"
+        ResourcePath: !Ref AppHealthcheckUrl
       HealthCheckTags:
         -
           Key: "Name"
