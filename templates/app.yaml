@@ -459,7 +459,77 @@ Resources:
               - "sts:AssumeRole"
       Path: "/"
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess
+        - !Ref AppDeployerPolicy
+  AppDeployerPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+            - elasticbeanstalk:UpdateApplicationVersion
+            - elasticbeanstalk:CreateApplicationVersion
+            - elasticbeanstalk:DeleteApplicationVersion
+          Resource: "*"
+          Condition:
+            StringEquals:
+              elasticbeanstalk:InApplication:
+              - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}'
+        - Effect: Allow
+          Action:
+            - elasticbeanstalk:DescribeAccountAttributes
+            - elasticbeanstalk:AbortEnvironmentUpdate
+            - elasticbeanstalk:TerminateEnvironment
+            - rds:*
+            - elasticbeanstalk:ValidateConfigurationSettings
+            - elasticbeanstalk:CheckDNSAvailability
+            - autoscaling:*
+            - elasticbeanstalk:RequestEnvironmentInfo
+            - elasticbeanstalk:RebuildEnvironment
+            - elasticbeanstalk:DescribeInstancesHealth
+            - elasticbeanstalk:DescribeEnvironmentHealth
+            - sns:*
+            - elasticbeanstalk:RestartAppServer
+            - s3:*
+            - cloudformation:*
+            - elasticloadbalancing:*
+            - elasticbeanstalk:CreateStorageLocation
+            - elasticbeanstalk:DescribeEnvironmentManagedActions
+            - elasticbeanstalk:SwapEnvironmentCNAMEs
+            - elasticbeanstalk:DescribeConfigurationOptions
+            - elasticbeanstalk:ApplyEnvironmentManagedAction
+            - cloudwatch:*
+            - elasticbeanstalk:CreateEnvironment
+            - elasticbeanstalk:List*
+            - elasticbeanstalk:DeleteEnvironmentConfiguration
+            - elasticbeanstalk:UpdateEnvironment
+            - ec2:*
+            - elasticbeanstalk:RetrieveEnvironmentInfo
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - elasticbeanstalk:DescribeEvents
+            - elasticbeanstalk:DescribeApplications
+            - elasticbeanstalk:AddTags
+            - elasticbeanstalk:ListPlatformVersions
+          Resource:
+            - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}'
+        - Effect: Allow
+          Action:
+            - elasticbeanstalk:AddTags
+            - elasticbeanstalk:Describe*
+          Resource:
+            - arn:aws:elasticbeanstalk:*::platform/*
+            - arn:aws:elasticbeanstalk:*:*:environment/*/*
+            - arn:aws:elasticbeanstalk:*:*:application/*
+            - arn:aws:elasticbeanstalk:*::solutionstack/*
+            - arn:aws:elasticbeanstalk:*:*:applicationversion/*/*
+            - arn:aws:elasticbeanstalk:*:*:configurationtemplate/*/*
+          Condition:
+            StringEquals:
+              elasticbeanstalk:InApplication:
+                - !Sub 'arn:aws:elasticbeanstalk:${AWS::Region}:${AWS::AccountId}:application/${AWS::StackName}'
   KmsKey:
     Type: "AWS::KMS::Key"
     Properties:
