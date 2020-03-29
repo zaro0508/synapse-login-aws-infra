@@ -49,6 +49,9 @@ Parameters:
       - t3.large
       - t3.xlarge
       - t3.2xlarge
+  EC2KeyName:
+    Description: An existing EC2 keypair to allow secure access to instances
+    Type: String
   RollingUpdateType:
     Type: String
     Default: "Time"
@@ -120,6 +123,9 @@ Resources:
         - Namespace: 'aws:autoscaling:launchconfiguration'
           OptionName: SecurityGroups
           Value: !Ref InstanceSecurityGroup
+        - Namespace: 'aws:autoscaling:launchconfiguration'
+          OptionName: EC2KeyName
+          Value: !Ref EC2KeyName
         - Namespace: 'aws:autoscaling:updatepolicy:rollingupdate'
           OptionName: RollingUpdateEnabled
           Value: 'true'
