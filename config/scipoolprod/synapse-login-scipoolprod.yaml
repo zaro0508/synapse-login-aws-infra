@@ -13,6 +13,7 @@ parameters:
   DNSHostname: "synapse-login-scipoolprod"
   DNSDomain: "scipoolprod.org"
   EC2InstanceType: "t3.small"
+  EC2KeyName: 'scipoolprod'
   VpcName: "internalpoolvpc"
   SynapseOauthClientSecret: !ssm /synapse-login-scipoolprod/SynapseOauthClientSecret
   SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8 Java 8'
