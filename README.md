@@ -1,22 +1,23 @@
 # synapse-login-aws-infra
-Infrastructor for the Synapse login application to the AWS service catalog on org-sagebase-scipoolprod
+Infrastructor for the Synapse login application to the AWS service catalog
+
+## Deployment
+We use[sceptre](https://sceptre.cloudreach.com/latest/about.html) to deploy the
+infrastructure for the application.
+
+To create or update the AWS infrastructure:
+
+```
+sceptre --var "profile=my-aws" --var "region=us-east-1" launch config/scipoolprod
+```
+
+## Infrastructure
+We run the login app on an AWS Beanstalk Tomcat solution stack.  Once the infra is
+setup you can deploy the login apps into the beanstalk solution stack.
 
 # login apps
 List of login apps using this AWS infrastructure.
 * https://github.com/Sage-Bionetworks/synapse-login-scipoolprod
-
-## Instructions to create or update CF stacks
-
-```
-# Update CF stacks with sceptre:
-# sceptre launch-stack <account_name> <stack_name>
-```
-
-The above should setup resources for the AWS account.  Once the infrastructure
-for the account has been setup you can access and view the account using the
-[AWS console](https://AWS-account-ID-or-alias.signin.aws.amazon.com/console).
-
-*Note - This project depends on CF templates from other accounts.*
 
 ## Continuous Integration
 We have configured Travis to deploy CF template updates.  Travis deploys using
