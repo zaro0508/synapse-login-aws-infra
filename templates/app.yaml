@@ -78,6 +78,10 @@ Parameters:
     Type: String
     Description: The Beanstalk solution stack for the app
     Default: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8.5 Java 8'
+  PropertiesFilename:
+    Type: String
+    Description: The name of the app configuration file to load
+    Default: 'global.properties'
 Resources:
   LoadBalancerAccessLogsBucket:
     Type: 'AWS::S3::Bucket'
@@ -222,6 +226,9 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: SYNAPSE_OAUTH_CLIENT_SECRET
           Value: !Ref SynapseOauthClientSecret
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: PROPERTIES_FILENAME
+          Value: !Ref PropertiesFilename
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:

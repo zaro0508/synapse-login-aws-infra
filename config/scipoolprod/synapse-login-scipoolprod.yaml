@@ -19,3 +19,4 @@ parameters:
   SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8 Java 8'
   AutoScalingMinSize: "2"
   AutoScalingMaxSize: "3"
+  PropertiesFilename: "scipoolprod.properties"
