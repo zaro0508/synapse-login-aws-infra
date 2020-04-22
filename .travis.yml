@@ -4,7 +4,8 @@ python: 3.7
 cache: pip
 branches:
   only:
-  - master
+  - develop
+  - prod
 install:
   - wget https://github.com/Sage-Bionetworks/infra-utils/archive/master.zip -O /tmp/infra-utils.zip
   - unzip -j -n /tmp/infra-utils.zip -x "infra-utils-master/.gitignore" "infra-utils-master/LICENSE" "infra-utils-master/*.md" "infra-utils-master/aws/*"
@@ -22,4 +23,4 @@ jobs:
         - pre-commit run --all-files
     - stage: deploy
       script:
-        - sceptre launch scipoolprod --yes
+        - sceptre launch --yes $TRAVIS_BRANCH
