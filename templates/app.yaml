@@ -74,6 +74,10 @@ Parameters:
     Type: String
     NoEcho: true
     Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
+  PropertiesFilename:
+    Type: String
+    Description: The properties file that the application will use
+    Default: "global.properties"
   SolutionStackName:
     Type: String
     Description: The Beanstalk solution stack for the app
@@ -222,6 +226,9 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: SYNAPSE_OAUTH_CLIENT_SECRET
           Value: !Ref SynapseOauthClientSecret
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: PROPERTIES_FILENAME
+          Value: !Ref PropertiesFilename
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
