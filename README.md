@@ -8,7 +8,7 @@ infrastructure for the application.
 To create or update the AWS infrastructure:
 
 ```
-sceptre --var "profile=my-aws" --var "region=us-east-1" launch config/scipoolprod
+sceptre --var "profile=my-aws" --var "region=us-east-1" launch develop
 ```
 
 ## Infrastructure
