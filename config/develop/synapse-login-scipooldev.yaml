@@ -15,7 +15,6 @@ parameters:
   EC2InstanceType: "t3.small"
   EC2KeyName: 'scipool'
   VpcName: "cesspoolvpc"
-  SynapseOauthClientSecret: !ssm /synapse-login-scipooldev/SynapseOauthClientSecret
   PropertiesFilename: "scipooldev.properties"
   SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.4 running Tomcat 8 Java 8'
   AutoScalingMinSize: "1"
