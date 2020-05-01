@@ -23,4 +23,4 @@ jobs:
         - pre-commit run --all-files
     - stage: deploy
       script:
-        - travis-wait-improved --timeout 20m sceptre launch --yes $TRAVIS_BRANCH
+        - travis-wait-improved --timeout 30m sceptre launch --yes $TRAVIS_BRANCH
