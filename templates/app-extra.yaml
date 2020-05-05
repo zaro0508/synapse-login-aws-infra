@@ -18,6 +18,9 @@ Parameters:
   FriendlyEndpoint:
     Description: Friendly endpoint
     Type: String
+  CertificateArn:
+    Description: The Sage IT SSL certficate
+    Type: String
 Resources:
   # Cloudformation does not support adding multiple certificats in Beanstalk
   # with aws:elbv2:listener:443 -> SSLCertificateArns therefore we configure
@@ -27,8 +30,7 @@ Resources:
     Properties:
       ListenerArn: !Ref Listener443Arn
       Certificates:
-        - CertificateArn: !ImportValue
-            'Fn::Sub': '${AWS::Region}-synapse-login-SSLCertificateSageIT'
+        - CertificateArn: !Ref CertificateArn
   HttpRedirectRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
