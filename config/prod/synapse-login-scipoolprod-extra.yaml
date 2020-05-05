@@ -11,3 +11,4 @@ parameters:
   Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:237179673806:listener/app/awseb-AWSEB-GFSO0GTC8UY2/ecfe9b49dab884b5/3731edc80a584ae2"
   HttpRedirectTarget: "synapse-login-scipoolprod.scipoolprod.org"
   FriendlyEndpoint: "sc.sageit.org"
+  CertificateArn: !stack_output_external synapse-login-scipooldev-sageit-cert::SSLCertificateSageIT
