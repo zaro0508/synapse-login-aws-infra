@@ -28,7 +28,7 @@ Resources:
       ListenerArn: !Ref Listener443Arn
       Certificates:
         - CertificateArn: !ImportValue
-            'Fn::Sub': '${AWS::Region}-synapse-login-scipooldev-sageit-cert-SSLCertificateSageIT'
+            'Fn::Sub': '${AWS::Region}-synapse-login-SSLCertificateSageIT'
   HttpRedirectRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
