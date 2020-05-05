@@ -1,0 +1,13 @@
+template_path: app-extra.yaml
+stack_name: synapse-login-scipooldev-extra
+dependencies:
+  - develop/synapse-login-scipooldev-sageit-cert.yaml
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+parameters:
+  Listener80Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb-AWSEB-3L9KRYEH2U0F/84c7327220bfd845/3d43c909d5c1fda4"
+  Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb-AWSEB-3L9KRYEH2U0F/84c7327220bfd845/5f5f78672fe11eed"
+  HttpRedirectTarget: "synapse-login-scipooldev.scipooldev.org"
+  FriendlyEndpoint: "sc-dev.sageit.org"

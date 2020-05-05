@@ -1,0 +1,19 @@
+# This creates and configures resources shared by all instances of the synapse-login applications
+# in a given account. It should only be run once for a given account.
+# Should be run as 'synapselogin-shared' stack
+AWSTemplateFormatVersion: 2010-09-09
+Description: Resources shared by all synapse-login stacks
+Resources:
+  SSLCertificateSageIT:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: '*.sageit.org'
+      DomainValidationOptions:
+        - DomainName: '*.sageit.org'
+          ValidationDomain: 'sageit.org'
+      ValidationMethod: DNS
+Outputs:
+  SSLCertificateSageIT:
+    Value: !Ref SSLCertificateSageIT
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-SSLCertificateSageIT'
