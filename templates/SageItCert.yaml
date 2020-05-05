@@ -16,4 +16,4 @@ Outputs:
   SSLCertificateSageIT:
     Value: !Ref SSLCertificateSageIT
     Export:
-      Name: !Sub '${AWS::Region}-${AWS::StackName}-SSLCertificateSageIT'
+      Name: !Sub '${AWS::Region}-synapse-login-SSLCertificateSageIT'

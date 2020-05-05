@@ -5,7 +5,7 @@ stack_tags:
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
 depedencies:
-  - scipoolprod/synapse-login-scipoolprod-base.yaml
+  - prod/synapse-login-scipoolprod-base.yaml
 parameters:
   AppDeployBucketName: "org-sagebase-scipoolprod-synapse-login-scipoolprod"
   SnsBounceNotificationEndpoint: "aws.scipoolprod@sagebase.org"
