@@ -414,6 +414,7 @@ Resources:
         - !Ref AppDeployBucketManagedPolicy
         - !Ref CloudwatchIntegrationManagedPolicy
         - !Ref KmsDecryptManagedPolicy
+        - !Ref SsmManagedPolicy
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
