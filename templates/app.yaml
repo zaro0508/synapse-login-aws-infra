@@ -70,10 +70,6 @@ Parameters:
   VpcName:
     Type: String
     Description: The VPC for this application
-  SynapseOauthClientSecret:
-    Type: String
-    NoEcho: true
-    Description: The OAuth client registered with Synapse that enables BSM sign in via Synapse
   PropertiesFilename:
     Type: String
     Description: The properties file that the application will use
@@ -223,9 +219,6 @@ Resources:
           Value: !ImportValue
                  'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-SSLCertificate'
         # Application environment options
-        - Namespace: 'aws:elasticbeanstalk:application:environment'
-          OptionName: SYNAPSE_OAUTH_CLIENT_SECRET
-          Value: !Ref SynapseOauthClientSecret
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: PROPERTIES_FILENAME
           Value: !Ref PropertiesFilename
