@@ -1,5 +1,5 @@
 # synapse-login-aws-infra
-Infrastructor for the Synapse login application to the AWS service catalog
+Infrastructure for the Synapse login application to the AWS service catalog
 
 ## Deployment
 We use[sceptre](https://sceptre.cloudreach.com/latest/about.html) to deploy the
@@ -17,7 +17,7 @@ setup you can deploy the login apps into the beanstalk solution stack.
 
 # login apps
 List of login apps using this AWS infrastructure.
-* https://github.com/Sage-Bionetworks/synapse-login-scipoolprod
+* https://github.com/Sage-Bionetworks/synapse-login-scipool
 
 ## Continuous Integration
 We have configured Travis to deploy CF template updates.  Travis deploys using

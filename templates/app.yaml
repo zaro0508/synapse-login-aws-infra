@@ -406,6 +406,15 @@ Resources:
                 - ec2.amazonaws.com
             Action:
               - 'sts:AssumeRole'
+      TagSessionPolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:TagSession'
       Path: /
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
