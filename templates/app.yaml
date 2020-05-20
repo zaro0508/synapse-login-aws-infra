@@ -406,6 +406,7 @@ Resources:
                 - ec2.amazonaws.com
             Action:
               - 'sts:AssumeRole'
+              - 'sts:TagSession'
       Path: /
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
