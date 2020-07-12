@@ -413,6 +413,7 @@ Resources:
         - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
         - !Ref AppDeployBucketManagedPolicy
         - !Ref CloudwatchIntegrationManagedPolicy
+        - !Ref KmsDecryptManagedPolicy
         - !ImportValue
           'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
