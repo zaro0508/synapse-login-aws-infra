@@ -352,6 +352,30 @@ Resources:
                 - 'parameter/'
                 - !Ref AWS::StackName
                 - '/*'
+  KmsDecryptManagedPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ReadAccess
+            Action:
+              - 'kms:ListKeys'
+              - 'kms:ListAliases'
+              - 'kms:DescribeKey'
+              - 'kms:ListKeyPolicies'
+              - 'kms:GetKeyPolicy'
+              - 'kms:GetKeyRotationStatus'
+              - 'iam:ListUsers'
+              - 'iam:ListRoles'
+            Effect: Allow
+            Resource: !GetAtt KmsKey.Arn
+          - Sid: DecryptAccess
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+            Effect: Allow
+            Resource: !GetAtt KmsKey.Arn
   # cloudwatch integration https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.cloudwatchlogs.html
   CloudwatchIntegrationManagedPolicy:
     Type: 'AWS::IAM::ManagedPolicy'
@@ -444,6 +468,73 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess
+  KmsKey:
+    Type: "AWS::KMS::Key"
+    Properties:
+      Description: !Join
+        - '-'
+        - - !Ref AWS::StackName
+          - "KmsKey"
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Sid: "Allow administration of the key"
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - !Join
+                  - ''
+                  - - 'arn:aws:iam::'
+                    - !Ref AWS::AccountId
+                    - ':root'
+                - !ImportValue
+                  'Fn::Sub': '${AWS::Region}-bootstrap-CfServiceRoleArn'
+            Action:
+              - "kms:Create*"
+              - "kms:Describe*"
+              - "kms:Enable*"
+              - "kms:List*"
+              - "kms:Put*"
+              - "kms:Update*"
+              - "kms:Revoke*"
+              - "kms:Disable*"
+              - "kms:Get*"
+              - "kms:Delete*"
+              - "kms:ScheduleKeyDeletion"
+              - "kms:CancelKeyDeletion"
+            Resource: "*"
+          -
+            Sid: "Allow use of the key"
+            Effect: "Allow"
+            Principal:
+              AWS:
+                - !Join
+                  - ''
+                  - - 'arn:aws:iam::'
+                    - !Ref AWS::AccountId
+                    - ':root'
+                - !ImportValue
+                  'Fn::Sub': '${AWS::Region}-bootstrap-CfServiceRoleArn'
+                - !GetAtt ServiceUser.Arn
+                - !ImportValue
+                  'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-BeanstalkServiceRoleArn'
+            Action:
+              - "kms:Encrypt"
+              - "kms:Decrypt"
+              - "kms:ReEncrypt*"
+              - "kms:GenerateDataKey*"
+              - "kms:DescribeKey"
+            Resource: "*"
+  KmsKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Join
+        - ''
+        - - 'alias/'
+          - !Ref AWS::StackName
+          - '/KmsKey'
+      TargetKeyId: !Ref KmsKey
 Outputs:
   AppPublicEndpoint:
     Value: !Join
@@ -454,6 +545,14 @@ Outputs:
         - !Ref DNSDomain
     Export:
       Name: !Sub '${AWS::Region}-${AWS::StackName}-AppPublicEndpoint'
+  KmsKey:
+    Value: !Ref KmsKey
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-KmsKey'
+  KmsKeyAlias:
+    Value: !Ref KmsKeyAlias
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-KmsKeyAlias'
   AppDeployBucket:
     Value: !Ref AppDeployBucket
     Export:
