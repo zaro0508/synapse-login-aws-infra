@@ -20,3 +20,4 @@ parameters:
   AutoScalingMinSize: "2"
   AutoScalingMaxSize: "3"
   RollingUpdateType: "Health"
+  OidcClientSecretKeyName: "/service-catalog/SynapseOauthClientSecret"
