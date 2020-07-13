@@ -345,7 +345,9 @@ Resources:
             Action:
               - 'ssm:*'
             Effect: Allow
-            Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OidcClientSecretKeyName}'
+            Resource:
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${AWS::StackName}/*'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OidcClientSecretKeyName}'
   KmsDecryptManagedPolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
