@@ -1,9 +1,9 @@
-Description: "Setup SSM parameter store variables"
+Description: "Setup parameters in the SSM parameter store"
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
-  {% for variable in sceptre_user_data.Variables %}
-  {%- set name = variable.Name -%}
-  {%- set value = variable.Value -%}
+  {% for parameter in sceptre_user_data.Parameters %}
+  {%- set name = parameter.Name -%}
+  {%- set value = parameter.Value -%}
     {{ name }}:
       Type: AWS::SSM::Parameter
       Properties:
@@ -12,9 +12,9 @@ Resources:
         Type: 'String'
   {% endfor %}
 Outputs:
-  {% for variable in sceptre_user_data.Variables %}
-  {%- set name = variable.Name -%}
-  {%- set value = variable.Value -%}
+  {% for parameter in sceptre_user_data.Parameters %}
+  {%- set name = parameter.Name -%}
+  {%- set value = parameter.Value -%}
     {{ name }}:
       Value: !GetAtt {{ name }}.Value
       Export:

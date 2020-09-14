@@ -1,4 +1,4 @@
-template_path: ssm-vars.j2
+template_path: ssm-parameters.j2
 stack_name: synapse-login-scipooldev-vars
 stack_tags:
   Department: "Platform"
@@ -6,7 +6,7 @@ stack_tags:
   OwnerEmail: "it@sagebase.org"
 sceptre_user_data:
   Prefix: /service-catalog/
-  Variables:
+  Parameters:
     - Name: SynapseOauthClientId
       Value: 100055
     - Name: AwsRegion
