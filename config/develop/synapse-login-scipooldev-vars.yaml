@@ -24,8 +24,9 @@ sceptre_user_data:
     # 3409012 scipooldev-internal
     # 3409013 scipooldev-external
     - Name: TeamToRoleArnMap
-      Value: '[
-               {"teamId":"3407239","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
-               {"teamId":"3409012","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
-               {"teamId":"3409013","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogExternalEndusers"}
-             ]'
+      Value: >-
+        '[
+          {"teamId":"3407239","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
+          {"teamId":"3409012","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
+          {"teamId":"3409013","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogExternalEndusers"}
+        ]'
