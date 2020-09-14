@@ -1,0 +1,24 @@
+template_path: ssm-vars.j2
+stack_name: synapse-login-scipooldev-vars
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+sceptre_user_data:
+  Prefix: service-catalog
+  Variables:
+    - SynapseOauthClientId='100055'
+    - AwsRegion='us-east-1'
+    - SessionTimeoutSeconds='28800'
+    - SessionNameClaims='userid'
+    - SessionTagClaims='sub,userid,team,user_name,company,given_name,family_name'
+    - RedirectUris='https://synapse-login-scipooldev.scipooldev.org/synapse,https://connect.scipooldev.org/oauth2/idpresponse'
+    # Synapse team mapping:
+    # 3407239 scipool-admin
+    # 3409012 scipooldev-internal
+    # 3409013 scipooldev-external
+    - TeamToRoleArnMap='[
+            {"teamId":"3407239","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
+            {"teamId":"3409012","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
+            {"teamId":"3409013","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogExternalEndusers"}
+      ]'
