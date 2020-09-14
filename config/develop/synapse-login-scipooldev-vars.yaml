@@ -5,20 +5,27 @@ stack_tags:
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
 sceptre_user_data:
-  Prefix: service-catalog
+  Prefix: /service-catalog/
   Variables:
-    - SynapseOauthClientId='100055'
-    - AwsRegion='us-east-1'
-    - SessionTimeoutSeconds='28800'
-    - SessionNameClaims='userid'
-    - SessionTagClaims='sub,userid,team,user_name,company,given_name,family_name'
-    - RedirectUris='https://synapse-login-scipooldev.scipooldev.org/synapse,https://connect.scipooldev.org/oauth2/idpresponse'
+    - Name: SynapseOauthClientId
+      Value: 100055
+    - Name: AwsRegion
+      Value: us-east-1
+    - Name: SessionTimeoutSeconds
+      Value: 28800
+    - Name: SessionNameClaims
+      Value: userid
+    - Name: SessionTagClaims
+      Value: sub,userid,team,user_name,company,given_name,family_name
+    - Name: RedirectUris
+      Value: https://synapse-login-scipooldev.scipooldev.org/synapse,https://connect.scipooldev.org/oauth2/idpresponse
     # Synapse team mapping:
     # 3407239 scipool-admin
     # 3409012 scipooldev-internal
     # 3409013 scipooldev-external
-    - TeamToRoleArnMap='[
-            {"teamId":"3407239","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
-            {"teamId":"3409012","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
-            {"teamId":"3409013","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogExternalEndusers"}
-      ]'
+    - Name: TeamToRoleArnMap
+      Value: '[
+               {"teamId":"3407239","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
+               {"teamId":"3409012","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
+               {"teamId":"3409013","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogExternalEndusers"}
+             ]'

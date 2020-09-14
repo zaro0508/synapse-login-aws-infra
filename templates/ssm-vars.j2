@@ -1,24 +1,18 @@
 Description: "Setup SSM parameter store variables"
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
-  {% for variable in sceptre_user_data.Variables %}
-  {%- set var = variable.split('=') -%}
-  {%- set name = var[0] -%}
-  {%- set value = var[1] -%}
-    {{ name }}:
-      Type: AWS::SSM::Parameter
-      Properties:
-        Name: {{ sceptre_user_data.Prefix }}/{{ name }}
-        Value: {{ value }}
-        Type: 'String'
-  {% endfor %}
+{% for variable in sceptre_user_data.Variables %}
+  {{ variable.Name }}:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: {{ sceptre_user_data.Prefix }}{{ variable.Name }}
+      Value: {{ variable.Value }}
+      Type: 'String'
+{% endfor %}
 Outputs:
-  {% for variable in sceptre_user_data.Variables %}
-  {%- set var = variable.split('=') -%}
-  {%- set name = var[0] -%}
-  {%- set value = var[1] -%}
-    {{ name }}:
-      Value: !GetAtt {{ name }}.Value
-      Export:
-        Name: !Sub '${AWS::Region}-${AWS::StackName}-{{ name }}'
-  {% endfor %}
+{% for variable in sceptre_user_data.Variables %}
+  {{ variable.Name }}:
+    Value: !GetAtt {{ variable.Name }}.Value
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-{{ variable.Name }}'
+{% endfor %}
