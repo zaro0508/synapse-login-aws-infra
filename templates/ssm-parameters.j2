@@ -1,0 +1,22 @@
+Description: "Setup parameters in the SSM parameter store"
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  {% for parameter in sceptre_user_data.Parameters %}
+  {%- set name = parameter.Name -%}
+  {%- set value = parameter.Value -%}
+    {{ name }}:
+      Type: AWS::SSM::Parameter
+      Properties:
+        Name: {{ sceptre_user_data.Prefix }}{{ name }}
+        Value: {{ value }}
+        Type: 'String'
+  {% endfor %}
+Outputs:
+  {% for parameter in sceptre_user_data.Parameters %}
+  {%- set name = parameter.Name -%}
+  {%- set value = parameter.Value -%}
+    {{ name }}:
+      Value: !GetAtt {{ name }}.Value
+      Export:
+        Name: !Sub '${AWS::Region}-${AWS::StackName}-{{ name }}'
+  {% endfor %}
