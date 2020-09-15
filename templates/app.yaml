@@ -225,6 +225,27 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: PROPERTIES_FILENAME
           Value: !Ref PropertiesFilename
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SYNAPSE_OAUTH_CLIENT_ID
+          Value: "/service-catalog/SynapseOauthClientId"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: AWS_REGION
+          Value: "/service-catalog/AwsRegion"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_TIMEOUT_SECONDS
+          Value: "/service-catalog/SessionTimeoutSeconds"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_NAME_CLAIMS
+          Value: "/service-catalog/SessionNameClaims"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_TAG_CLAIMS
+          Value: "/service-catalog/SessionTagClaims"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: REDIRECT_URIS
+          Value: "/service-catalog/RedirectUris"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: TEAM_TO_ROLE_ARN_MAP
+          Value: "/service-catalog/TeamToRoleArnMap"
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:

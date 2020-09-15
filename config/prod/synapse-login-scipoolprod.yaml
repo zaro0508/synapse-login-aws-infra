@@ -5,6 +5,7 @@ stack_tags:
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
 depedencies:
+  - prod/synapse-login-scipooldev-params.yaml
   - prod/synapse-login-scipoolprod-base.yaml
 parameters:
   AppDeployBucketName: "org-sagebase-scipoolprod-synapse-login-scipoolprod"
