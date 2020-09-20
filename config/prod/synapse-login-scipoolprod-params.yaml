@@ -1,5 +1,5 @@
 template_path: ssm-parameters.j2
-stack_name: synapse-login-scipoolprod-vars
+stack_name: synapse-login-scipoolprod-params
 stack_tags:
   Department: "Platform"
   Project: "Infrastructure"
