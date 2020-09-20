@@ -5,7 +5,6 @@ stack_tags:
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
 depedencies:
-  - develop/synapse-login-scipooldev-params.yaml
   - develop/synapse-login-scipooldev-base.yaml
 parameters:
   AppDeployBucketName: "org-sagebase-scipooldev-synapse-login-scipooldev"
@@ -16,6 +15,7 @@ parameters:
   EC2InstanceType: "t3.small"
   EC2KeyName: 'scipool'
   VpcName: "cesspoolvpc"
+  PropertiesFilename: "scipooldev.properties"
   SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.4 running Tomcat 8.5 Java 8'
   AutoScalingMinSize: "1"
   AutoScalingMaxSize: "2"
