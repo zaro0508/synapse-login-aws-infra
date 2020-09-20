@@ -77,6 +77,10 @@ Parameters:
   OidcClientSecretKeyName:
     Description: 'The name of the key that stores the OAuth 2.0 client secret'
     Type: String
+  SsmParameterPrefix:
+    Description: 'The SSM parameter store prefix for the application variablex'
+    ConstraintDescription: 'A prefix to the params (i.e. /service-catalog/)'
+    Type: String
 Resources:
   LoadBalancerAccessLogsBucket:
     Type: 'AWS::S3::Bucket'
@@ -364,6 +368,7 @@ Resources:
             Effect: Allow
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OidcClientSecretKeyName}'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmParameterPrefix}*'
   # cloudwatch integration https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.cloudwatchlogs.html
   CloudwatchIntegrationManagedPolicy:
     Type: 'AWS::IAM::ManagedPolicy'
