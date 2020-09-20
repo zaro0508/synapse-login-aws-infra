@@ -21,3 +21,4 @@ parameters:
   AutoScalingMaxSize: "3"
   RollingUpdateType: "Health"
   OidcClientSecretKeyName: "/service-catalog/SynapseOauthClientSecret"
+  SsmParameterPrefix: !stack_output_external synapse-login-scipoolprod-params::Prefix

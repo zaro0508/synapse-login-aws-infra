@@ -12,6 +12,10 @@ Resources:
         Type: 'String'
   {% endfor %}
 Outputs:
+  Prefix:
+    Value: {{ sceptre_user_data.Prefix }}
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-Prefix'
   {% for parameter in sceptre_user_data.Parameters %}
   {%- set name = parameter.Name -%}
   {%- set value = parameter.Value -%}
