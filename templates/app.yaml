@@ -70,10 +70,6 @@ Parameters:
   VpcName:
     Type: String
     Description: The VPC for this application
-  PropertiesFilename:
-    Type: String
-    Description: The properties file that the application will use
-    Default: "global.properties"
   SolutionStackName:
     Type: String
     Description: The Beanstalk solution stack for the app
@@ -227,8 +223,29 @@ Resources:
                  'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-SSLCertificate'
         # Application environment options
         - Namespace: 'aws:elasticbeanstalk:application:environment'
-          OptionName: PROPERTIES_FILENAME
-          Value: !Ref PropertiesFilename
+          OptionName: SYNAPSE_OAUTH_CLIENT_SECRET
+          Value: "ssm::/service-catalog/SynapseOauthClientSecret"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SYNAPSE_OAUTH_CLIENT_ID
+          Value: "ssm::/service-catalog/SynapseOauthClientId"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: AWS_REGION
+          Value: "ssm::/service-catalog/AwsRegion"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_TIMEOUT_SECONDS
+          Value: "ssm::/service-catalog/SessionTimeoutSeconds"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_NAME_CLAIMS
+          Value: "ssm::/service-catalog/SessionNameClaims"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_TAG_CLAIMS
+          Value: "ssm::/service-catalog/SessionTagClaims"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: REDIRECT_URIS
+          Value: "ssm::/service-catalog/RedirectUris"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: TEAM_TO_ROLE_ARN_MAP
+          Value: "ssm::/service-catalog/TeamToRoleArnMap"
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
