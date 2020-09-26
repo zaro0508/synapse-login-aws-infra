@@ -224,7 +224,7 @@ Resources:
         # Application environment options
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: SYNAPSE_OAUTH_CLIENT_SECRET
-          Value: "ssm::/service-catalog/SynapseOauthClientId"
+          Value: "ssm::/service-catalog/SynapseOauthClientSecret"
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: SYNAPSE_OAUTH_CLIENT_ID
           Value: "ssm::/service-catalog/SynapseOauthClientId"
