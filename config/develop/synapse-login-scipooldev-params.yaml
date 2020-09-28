@@ -1,5 +1,8 @@
-template_path: ssm-parameters.j2
+template_path: remote/ssm-parameters.j2
 stack_name: synapse-login-scipooldev-params
+hooks:
+  before_launch:
+    - !cmd "curl https://{{stack_group_config.admincentral_cf_bucket}}.s3.amazonaws.com/aws-infra/master/ssm-parameters.j2 --create-dirs -o templates/remote/ssm-parameters.j2"
 stack_tags:
   Department: "Platform"
   Project: "Infrastructure"
