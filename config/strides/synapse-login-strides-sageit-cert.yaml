@@ -1,0 +1,6 @@
+template_path: SageItCert.yaml
+stack_name: synapse-login-strides-sageit-cert
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"

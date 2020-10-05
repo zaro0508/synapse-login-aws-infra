@@ -1,0 +1,24 @@
+template_path: app.yaml
+stack_name: synapse-login-strides
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+depedencies:
+  - strides/synapse-login-strides-params.yaml
+  - strides/synapse-login-strides-base.yaml
+parameters:
+  AppDeployBucketName: "org-sagebase-strides-synapse-login-strides"
+  SnsBounceNotificationEndpoint: "aws.strides@sagebase.org"
+  SnsNotificationEndpoint: "aws.strides@sagebase.org"
+  DNSHostname: "synapse-login-strides"
+  DNSDomain: "sagebio-strides.org"
+  EC2InstanceType: "t3.small"
+  EC2KeyName: 'strides'
+  VpcName: "stridespoolvpc"
+  SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.10 running Tomcat 8.5 Java 8'
+  AutoScalingMinSize: "2"
+  AutoScalingMaxSize: "3"
+  RollingUpdateType: "Health"
+  OidcClientSecretKeyName: "/service-catalog/SynapseOauthClientSecret"
+  SsmParameterPrefix: !stack_output_external synapse-login-strides-params::Prefix
