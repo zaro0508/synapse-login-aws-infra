@@ -11,7 +11,7 @@ sceptre_user_data:
   Prefix: /service-catalog/
   Parameters  :
     - Name: SynapseOauthClientId
-      Value: 100053
+      Value: 100063
     - Name: AwsRegion
       Value: us-east-1
     - Name: SessionTimeoutSeconds
@@ -25,10 +25,10 @@ sceptre_user_data:
     # Synapse team mapping
     # 3407239 scipool-admin
     #  273957 Sage Bionetworks
-    # 3409010 strides-internal
+    # 3409010 scipoolprod-internal
     # 3412678 ampad-workinggroup
     # 3412679 ampad-portalusers
-    # 3409011 strides-external
+    # 3409011 scipoolprod-external
     - Name: TeamToRoleArnMap
       Value: >-
         '[
