@@ -136,3 +136,6 @@ temp/
 
 # mac
 .DS_Store
+
+# sceptre
+templates/remote

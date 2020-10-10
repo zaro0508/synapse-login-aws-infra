@@ -3,14 +3,18 @@
 # Should be run as 'synapselogin-shared' stack
 AWSTemplateFormatVersion: 2010-09-09
 Description: Resources shared by all synapse-login stacks
+Parameters:
+  DomainName:
+    Description: DNS Domain name for application
+    Type: String
 Resources:
   SSLCertificateSageIT:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: '*.sageit.org'
+      DomainName: !Ref DomainName
       DomainValidationOptions:
-        - DomainName: '*.sageit.org'
-          ValidationDomain: 'sageit.org'
+        - DomainName: !Ref DomainName
+          ValidationDomain: !Ref DomainName
       ValidationMethod: DNS
 Outputs:
   SSLCertificateSageIT:
