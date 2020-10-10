@@ -4,5 +4,3 @@ stack_tags:
   Department: "Platform"
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
-parameters:
-  DomainName: "*.sageit.org"
