@@ -387,6 +387,17 @@ Resources:
             Effect: Allow
             Resource:
               - !Sub 'arn:aws:logs:${AWS::Region}:*:*'
+  TaggingManagedPolicy:
+    Type: 'AWS::IAM::ManagedPolicy'
+    Properties:
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            Action:
+              - 'sts:TagSession'
+            Effect: Allow
+            Resource:
+              - !Sub 'arn:aws:iam::${AWS::AccountId}:*'
   InstanceRole:
     Type: 'AWS::IAM::Role'
     Properties:
@@ -409,6 +420,7 @@ Resources:
         - !ImportValue
           'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
+        - !Ref TaggingManagedPolicy
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
