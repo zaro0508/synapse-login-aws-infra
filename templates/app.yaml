@@ -516,3 +516,11 @@ Outputs:
     Value: !GetAtt ServiceRole.Arn
     Export:
       Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceRoleArn'
+  InstanceRole:
+    Value: !Ref InstanceRole
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-InstanceRole'
+  InstanceRoleArn:
+    Value: !GetAtt InstanceRole.Arn
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-InstanceRoleArn'
