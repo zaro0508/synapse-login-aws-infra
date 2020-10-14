@@ -6,23 +6,29 @@ branches:
   only:
   - develop
   - prod
-  - strides
 install:
-  - wget https://github.com/Sage-Bionetworks/infra-utils/archive/master.zip -O /tmp/infra-utils.zip
-  - unzip -j -n /tmp/infra-utils.zip -x "infra-utils-master/.gitignore" "infra-utils-master/LICENSE" "infra-utils-master/*.md" "infra-utils-master/aws/*"
-  - ./setup_aws_cli.sh || travis_terminate 1
-  - pip install pre-commit sceptre sceptre-ssm-resolver travis-wait-improved
+  - pip install awscli pre-commit sceptre sceptre-ssm-resolver travis-wait-improved
 stages:
   - name: validate
-  - name: deploy
-    if: type = push
+  - name: deploy-develop
+    if: type = push AND branch = develop
+  - name: deploy-prod   # deploy to all production AWS accounts
+    if: type = push AND branch = prod
 jobs:
   fast_finish: true
   include:
     - stage: validate
       script:
-        - pre-commit autoupdate
         - pre-commit run --all-files
-    - stage: deploy
+    - stage: deploy-develop
       script:
-        - travis-wait-improved --timeout 30m sceptre launch --yes $TRAVIS_BRANCH
+        - ./setup_aws_profiles.sh || travis_terminate 1
+        - travis-wait-improved --timeout 30m sceptre --var "profile=develop" launch --yes develop
+    - stage: deploy-prod
+      script:
+        - ./setup_aws_profiles.sh || travis_terminate 1
+        - travis-wait-improved --timeout 30m sceptre --var "profile=prod" launch --yes prod
+    - stage: deploy-prod
+      script:
+        - ./setup_aws_profiles.sh || travis_terminate 1
+        - travis-wait-improved --timeout 30m sceptre --var "profile=strides" launch --yes strides
