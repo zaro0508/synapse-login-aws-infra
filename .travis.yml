@@ -6,23 +6,35 @@ branches:
   only:
   - develop
   - prod
-  - strides
 install:
-  - wget https://github.com/Sage-Bionetworks/infra-utils/archive/master.zip -O /tmp/infra-utils.zip
-  - unzip -j -n /tmp/infra-utils.zip -x "infra-utils-master/.gitignore" "infra-utils-master/LICENSE" "infra-utils-master/*.md" "infra-utils-master/aws/*"
-  - ./setup_aws_cli.sh || travis_terminate 1
-  - pip install pre-commit sceptre sceptre-ssm-resolver travis-wait-improved
+  - pip install awscli pre-commit sceptre sceptre-ssm-resolver travis-wait-improved
 stages:
   - name: validate
-  - name: deploy
-    if: type = push
+  - name: deploy-develop
+    if: type = push AND branch = develop
+  - name: deploy-prod   # deploy to all production AWS accounts
+    if: type = push AND branch = prod
 jobs:
   fast_finish: true
   include:
     - stage: validate
       script:
-        - pre-commit autoupdate
         - pre-commit run --all-files
-    - stage: deploy
+    - stage: deploy-develop  # org-sagebase-scipooldev
       script:
-        - travis-wait-improved --timeout 30m sceptre launch --yes $TRAVIS_BRANCH
+        - mkdir -p ~/.aws
+        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_develop" > ~/.aws/config
+        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_develop\naws_secret_access_key=$AwsTravisSecretAccessKey_develop" > ~/.aws/credentials
+        - travis-wait-improved --timeout 30m sceptre --var launch --yes develop
+    - stage: deploy-prod    # org-sagebase-scipoolprod
+      script:
+        - mkdir -p ~/.aws
+        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_prod" > ~/.aws/config
+        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_prod\naws_secret_access_key=$AwsTravisSecretAccessKey_prod" > ~/.aws/credentials
+        - travis-wait-improved --timeout 30m sceptre --var launch --yes prod
+    - stage: deploy-prod    # org-sagebase-strides
+      script:
+        - mkdir -p ~/.aws
+        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_strides" > ~/.aws/config
+        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_strides\naws_secret_access_key=$AwsTravisSecretAccessKey_strides" > ~/.aws/credentials
+        - travis-wait-improved --timeout 30m sceptre --var launch --yes strides
