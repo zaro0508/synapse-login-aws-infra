@@ -20,15 +20,21 @@ jobs:
     - stage: validate
       script:
         - pre-commit run --all-files
-    - stage: deploy-develop
+    - stage: deploy-develop  # org-sagebase-scipooldev
       script:
-        - ./setup_aws_profiles.sh || travis_terminate 1
-        - travis-wait-improved --timeout 30m sceptre --var "profile=develop" launch --yes develop
-    - stage: deploy-prod
+        - mkdir -p ~/.aws
+        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_develop" > ~/.aws/config
+        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_develop\naws_secret_access_key=$AwsTravisSecretAccessKey_develop" > ~/.aws/credentials
+        - travis-wait-improved --timeout 30m sceptre --var launch --yes develop
+    - stage: deploy-prod    # org-sagebase-scipoolprod
       script:
-        - ./setup_aws_profiles.sh || travis_terminate 1
-        - travis-wait-improved --timeout 30m sceptre --var "profile=prod" launch --yes prod
-    - stage: deploy-prod
+        - mkdir -p ~/.aws
+        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_prod" > ~/.aws/config
+        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_prod\naws_secret_access_key=$AwsTravisSecretAccessKey_prod" > ~/.aws/credentials
+        - travis-wait-improved --timeout 30m sceptre --var launch --yes prod
+    - stage: deploy-prod    # org-sagebase-strides
       script:
-        - ./setup_aws_profiles.sh || travis_terminate 1
-        - travis-wait-improved --timeout 30m sceptre --var "profile=strides" launch --yes strides
+        - mkdir -p ~/.aws
+        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_strides" > ~/.aws/config
+        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_strides\naws_secret_access_key=$AwsTravisSecretAccessKey_strides" > ~/.aws/credentials
+        - travis-wait-improved --timeout 30m sceptre --var launch --yes strides
