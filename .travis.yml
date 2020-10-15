@@ -7,7 +7,7 @@ branches:
   - develop
   - prod
 install:
-  - pip install awscli pre-commit sceptre sceptre-ssm-resolver travis-wait-improved
+  - pip install pre-commit sceptre sceptre-ssm-resolver travis-wait-improved awscli
 stages:
   - name: validate
   - name: deploy-develop
