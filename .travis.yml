@@ -25,16 +25,16 @@ jobs:
         - mkdir -p ~/.aws
         - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_develop" > ~/.aws/config
         - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_develop\naws_secret_access_key=$AwsTravisSecretAccessKey_develop" > ~/.aws/credentials
-        - travis-wait-improved --timeout 30m sceptre --var launch --yes develop
+        - travis-wait-improved --timeout 30m sceptre launch --yes develop
     - stage: deploy-prod    # org-sagebase-scipoolprod
       script:
         - mkdir -p ~/.aws
         - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_prod" > ~/.aws/config
         - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_prod\naws_secret_access_key=$AwsTravisSecretAccessKey_prod" > ~/.aws/credentials
-        - travis-wait-improved --timeout 30m sceptre --var launch --yes prod
+        - travis-wait-improved --timeout 30m sceptre launch --yes prod
     - stage: deploy-prod    # org-sagebase-strides
       script:
         - mkdir -p ~/.aws
         - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_strides" > ~/.aws/config
         - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_strides\naws_secret_access_key=$AwsTravisSecretAccessKey_strides" > ~/.aws/credentials
-        - travis-wait-improved --timeout 30m sceptre --var launch --yes strides
+        - travis-wait-improved --timeout 30m sceptre launch --yes strides
