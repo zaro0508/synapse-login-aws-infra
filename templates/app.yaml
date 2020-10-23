@@ -70,14 +70,17 @@ Parameters:
   VpcName:
     Type: String
     Description: The VPC for this application
-  PropertiesFilename:
-    Type: String
-    Description: The properties file that the application will use
-    Default: "global.properties"
   SolutionStackName:
     Type: String
     Description: The Beanstalk solution stack for the app
     Default: '64bit Amazon Linux 2018.03 v3.3.3 running Tomcat 8.5 Java 8'
+  OidcClientSecretKeyName:
+    Description: 'The name of the key that stores the OAuth 2.0 client secret'
+    Type: String
+  SsmParameterPrefix:
+    Description: 'The SSM parameter store prefix for the application variablex'
+    ConstraintDescription: 'A prefix to the params (i.e. /service-catalog/)'
+    Type: String
 Resources:
   LoadBalancerAccessLogsBucket:
     Type: 'AWS::S3::Bucket'
@@ -220,8 +223,29 @@ Resources:
                  'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-SSLCertificate'
         # Application environment options
         - Namespace: 'aws:elasticbeanstalk:application:environment'
-          OptionName: PROPERTIES_FILENAME
-          Value: !Ref PropertiesFilename
+          OptionName: SYNAPSE_OAUTH_CLIENT_SECRET
+          Value: "ssm::/service-catalog/SynapseOauthClientSecret"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SYNAPSE_OAUTH_CLIENT_ID
+          Value: "ssm::/service-catalog/SynapseOauthClientId"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: AWS_REGION
+          Value: "ssm::/service-catalog/AwsRegion"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_TIMEOUT_SECONDS
+          Value: "ssm::/service-catalog/SessionTimeoutSeconds"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_NAME_CLAIMS
+          Value: "ssm::/service-catalog/SessionNameClaims"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: SESSION_TAG_CLAIMS
+          Value: "ssm::/service-catalog/SessionTagClaims"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: REDIRECT_URIS
+          Value: "ssm::/service-catalog/RedirectUris"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: TEAM_TO_ROLE_ARN_MAP
+          Value: "ssm::/service-catalog/TeamToRoleArnMap"
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
@@ -342,40 +366,9 @@ Resources:
             Action:
               - 'ssm:*'
             Effect: Allow
-            Resource: !Join
-              - ''
-              - - 'arn:aws:ssm:'
-                - !Ref AWS::Region
-                - ':'
-                - !Ref AWS::AccountId
-                - ':'
-                - 'parameter/'
-                - !Ref AWS::StackName
-                - '/*'
-  KmsDecryptManagedPolicy:
-    Type: "AWS::IAM::ManagedPolicy"
-    Properties:
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: ReadAccess
-            Action:
-              - 'kms:ListKeys'
-              - 'kms:ListAliases'
-              - 'kms:DescribeKey'
-              - 'kms:ListKeyPolicies'
-              - 'kms:GetKeyPolicy'
-              - 'kms:GetKeyRotationStatus'
-              - 'iam:ListUsers'
-              - 'iam:ListRoles'
-            Effect: Allow
-            Resource: !GetAtt KmsKey.Arn
-          - Sid: DecryptAccess
-            Action:
-              - 'kms:Encrypt'
-              - 'kms:Decrypt'
-            Effect: Allow
-            Resource: !GetAtt KmsKey.Arn
+            Resource:
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OidcClientSecretKeyName}'
+              - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmParameterPrefix}*'
   # cloudwatch integration https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.cloudwatchlogs.html
   CloudwatchIntegrationManagedPolicy:
     Type: 'AWS::IAM::ManagedPolicy'
@@ -413,7 +406,8 @@ Resources:
         - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
         - !Ref AppDeployBucketManagedPolicy
         - !Ref CloudwatchIntegrationManagedPolicy
-        - !Ref KmsDecryptManagedPolicy
+        - !ImportValue
+          'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
@@ -467,73 +461,6 @@ Resources:
       Path: "/"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AWSElasticBeanstalkFullAccess
-  KmsKey:
-    Type: "AWS::KMS::Key"
-    Properties:
-      Description: !Join
-        - '-'
-        - - !Ref AWS::StackName
-          - "KmsKey"
-      KeyPolicy:
-        Version: "2012-10-17"
-        Statement:
-          -
-            Sid: "Allow administration of the key"
-            Effect: "Allow"
-            Principal:
-              AWS:
-                - !Join
-                  - ''
-                  - - 'arn:aws:iam::'
-                    - !Ref AWS::AccountId
-                    - ':root'
-                - !ImportValue
-                  'Fn::Sub': '${AWS::Region}-bootstrap-CfServiceRoleArn'
-            Action:
-              - "kms:Create*"
-              - "kms:Describe*"
-              - "kms:Enable*"
-              - "kms:List*"
-              - "kms:Put*"
-              - "kms:Update*"
-              - "kms:Revoke*"
-              - "kms:Disable*"
-              - "kms:Get*"
-              - "kms:Delete*"
-              - "kms:ScheduleKeyDeletion"
-              - "kms:CancelKeyDeletion"
-            Resource: "*"
-          -
-            Sid: "Allow use of the key"
-            Effect: "Allow"
-            Principal:
-              AWS:
-                - !Join
-                  - ''
-                  - - 'arn:aws:iam::'
-                    - !Ref AWS::AccountId
-                    - ':root'
-                - !ImportValue
-                  'Fn::Sub': '${AWS::Region}-bootstrap-CfServiceRoleArn'
-                - !GetAtt ServiceUser.Arn
-                - !ImportValue
-                  'Fn::Sub': '${AWS::Region}-${AWS::StackName}-base-BeanstalkServiceRoleArn'
-            Action:
-              - "kms:Encrypt"
-              - "kms:Decrypt"
-              - "kms:ReEncrypt*"
-              - "kms:GenerateDataKey*"
-              - "kms:DescribeKey"
-            Resource: "*"
-  KmsKeyAlias:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: !Join
-        - ''
-        - - 'alias/'
-          - !Ref AWS::StackName
-          - '/KmsKey'
-      TargetKeyId: !Ref KmsKey
 Outputs:
   AppPublicEndpoint:
     Value: !Join
@@ -544,14 +471,6 @@ Outputs:
         - !Ref DNSDomain
     Export:
       Name: !Sub '${AWS::Region}-${AWS::StackName}-AppPublicEndpoint'
-  KmsKey:
-    Value: !Ref KmsKey
-    Export:
-      Name: !Sub '${AWS::Region}-${AWS::StackName}-KmsKey'
-  KmsKeyAlias:
-    Value: !Ref KmsKeyAlias
-    Export:
-      Name: !Sub '${AWS::Region}-${AWS::StackName}-KmsKeyAlias'
   AppDeployBucket:
     Value: !Ref AppDeployBucket
     Export:
@@ -597,3 +516,11 @@ Outputs:
     Value: !GetAtt ServiceRole.Arn
     Export:
       Name: !Sub '${AWS::Region}-${AWS::StackName}-ServiceRoleArn'
+  InstanceRole:
+    Value: !Ref InstanceRole
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-InstanceRole'
+  InstanceRoleArn:
+    Value: !GetAtt InstanceRole.Arn
+    Export:
+      Name: !Sub '${AWS::Region}-${AWS::StackName}-InstanceRoleArn'

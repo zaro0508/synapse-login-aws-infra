@@ -1,0 +1,41 @@
+template_path: remote/ssm-parameters.j2
+stack_name: synapse-login-scipoolprod-params
+hooks:
+  before_launch:
+    - !cmd "curl https://{{stack_group_config.admincentral_cf_bucket}}.s3.amazonaws.com/aws-infra/master/ssm-parameters.j2 --create-dirs -o templates/remote/ssm-parameters.j2"
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+sceptre_user_data:
+  Prefix: /service-catalog/
+  Parameters  :
+    - Name: SynapseOauthClientId
+      Value: 100053
+    - Name: AwsRegion
+      Value: us-east-1
+    - Name: SessionTimeoutSeconds
+      Value: 28800
+    - Name: SessionNameClaims
+      Value: userid
+    - Name: SessionTagClaims
+      Value: sub,userid,team,user_name,company,given_name,family_name
+    - Name: RedirectUris
+      Value: https://synapse-login-scipoolprod.scipoolprod.org/synapse,https://connect.scipoolprod.org/oauth2/idpresponse
+    # Synapse team mapping
+    # 3407239 scipool-admin
+    #  273957 Sage Bionetworks
+    # 3409010 scipoolprod-internal
+    # 3412678 ampad-workinggroup
+    # 3412679 ampad-portalusers
+    # 3409011 scipoolprod-external
+    - Name: TeamToRoleArnMap
+      Value: >-
+        '[
+          {"teamId":"3407239","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"},
+          {"teamId":"273957","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"},
+          {"teamId":"3409010","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"},
+          {"teamId":"3412678","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogExternalEndusers"},
+          {"teamId":"3412679","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogExternalEndusers"},
+          {"teamId":"3409011","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogExternalEndusers"}
+        ]'

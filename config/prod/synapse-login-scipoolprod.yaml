@@ -5,6 +5,7 @@ stack_tags:
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
 depedencies:
+  - prod/synapse-login-scipoolprod-params.yaml
   - prod/synapse-login-scipoolprod-base.yaml
 parameters:
   AppDeployBucketName: "org-sagebase-scipoolprod-synapse-login-scipoolprod"
@@ -15,8 +16,9 @@ parameters:
   EC2InstanceType: "t3.small"
   EC2KeyName: 'scipool'
   VpcName: "internalpoolvpc"
-  PropertiesFilename: "scipoolprod.properties"
   SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.4 running Tomcat 8.5 Java 8'
   AutoScalingMinSize: "2"
   AutoScalingMaxSize: "3"
   RollingUpdateType: "Health"
+  OidcClientSecretKeyName: "/service-catalog/SynapseOauthClientSecret"
+  SsmParameterPrefix: !stack_output_external synapse-login-scipoolprod-params::Prefix

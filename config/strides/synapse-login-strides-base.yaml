@@ -1,0 +1,9 @@
+template_path: base.yaml
+stack_name: synapse-login-strides-base
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+parameters:
+  DNSDomainName: "sagebio-strides.org"
+  BeanstalkAppName: "synapse-login"
