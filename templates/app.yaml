@@ -248,8 +248,7 @@ Resources:
           Value: "ssm::/service-catalog/TeamToRoleArnMap"
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: MARKETPLACE_ID_DYNAMO_TABLE_NAME
-          Value: !ImportValue
-                 'Fn::Sub': '${AWS::Region}-${AWS::StackName}-MarketplaceDynamoDBTable'
+          Value: 'ssm::/service-catalog/MarketplaceIdDynamoTableName'
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
