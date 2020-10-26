@@ -247,6 +247,9 @@ Resources:
           OptionName: TEAM_TO_ROLE_ARN_MAP
           Value: "ssm::/service-catalog/TeamToRoleArnMap"
         - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: MARKETPLACE_PRODUCT_CODE_SC
+          Value: "ssm::/service-catalog/MarketplaceProductCodeSC"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: MARKETPLACE_ID_DYNAMO_TABLE_NAME
           Value: !ImportValue
                  'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTable'
