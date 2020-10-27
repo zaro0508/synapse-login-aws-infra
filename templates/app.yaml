@@ -246,6 +246,13 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: TEAM_TO_ROLE_ARN_MAP
           Value: "ssm::/service-catalog/TeamToRoleArnMap"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: MARKETPLACE_PRODUCT_CODE_SC
+          Value: "ssm::/service-catalog/MarketplaceProductCodeSC"
+        - Namespace: 'aws:elasticbeanstalk:application:environment'
+          OptionName: MARKETPLACE_ID_DYNAMO_TABLE_NAME
+          Value: !ImportValue
+                 'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTable'
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
@@ -373,20 +380,20 @@ Resources:
   CloudwatchIntegrationManagedPolicy:
     Type: 'AWS::IAM::ManagedPolicy'
     Properties:
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            Action:
-              - 'logs:CreateLogGroup'
-              - 'logs:CreateLogStream'
-              - 'logs:GetLogEvents'
-              - 'logs:PutLogEvents'
-              - 'logs:DescribeLogGroups'
-              - 'logs:DescribeLogStreams'
-              - 'logs:PutRetentionPolicy'
-            Effect: Allow
-            Resource:
-              - !Sub 'arn:aws:logs:${AWS::Region}:*:*'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          Action:
+            - 'logs:CreateLogGroup'
+            - 'logs:CreateLogStream'
+            - 'logs:GetLogEvents'
+            - 'logs:PutLogEvents'
+            - 'logs:DescribeLogGroups'
+            - 'logs:DescribeLogStreams'
+            - 'logs:PutRetentionPolicy'
+          Effect: Allow
+          Resource:
+            - !Sub 'arn:aws:logs:${AWS::Region}:*:*'
   InstanceRole:
     Type: 'AWS::IAM::Role'
     Properties:
