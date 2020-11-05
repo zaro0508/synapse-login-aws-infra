@@ -416,6 +416,10 @@ Resources:
         - !ImportValue
           'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
+        - !ImportValue
+          'Fn::Sub': '${AWS::Region}-idp-marketplace-policy-ResolveCustomerMarketplacePolicyArn'
+        - !ImportValue
+          'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTableArn'
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
