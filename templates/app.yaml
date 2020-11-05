@@ -376,6 +376,16 @@ Resources:
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OidcClientSecretKeyName}'
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmParameterPrefix}*'
+  ResolveCustomerMarketplaceMangedPolicy:
+    Type: "AWS::IAM::ManagedPolicy"
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ResolveCustomerMarketplace
+            Effect: Allow
+            Action: "aws-marketplace:ResolveCustomer"
+            Resource: "*"
   # cloudwatch integration https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.cloudwatchlogs.html
   CloudwatchIntegrationManagedPolicy:
     Type: 'AWS::IAM::ManagedPolicy'
@@ -416,19 +426,9 @@ Resources:
         - !ImportValue
           'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
+        - !Ref ResolveCustomerMarketplaceMangedPolicy
         - !ImportValue
           'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTableArn'
-      Policies:
-        -
-          PolicyName: ResolveCustomerMarketplace
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              -
-                Sid: ResolveCustomerMarketplace
-                Effect: Allow
-                Action: "aws-marketplace:ResolveCustomer"
-                Resource: "*"
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
