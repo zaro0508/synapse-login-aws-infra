@@ -417,9 +417,18 @@ Resources:
           'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
         - !ImportValue
-          'Fn::Sub': '${AWS::Region}-idp-marketplace-policy-ResolveCustomerMarketplacePolicyArn'
-        - !ImportValue
           'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTableArn'
+      Policies:
+        -
+          PolicyName: ResolveCustomerMarketplace
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Sid: ResolveCustomerMarketplace
+                Effect: Allow
+                Action: "aws-marketplace:ResolveCustomer"
+                Resource: "*"
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
