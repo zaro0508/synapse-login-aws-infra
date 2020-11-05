@@ -376,7 +376,7 @@ Resources:
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OidcClientSecretKeyName}'
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmParameterPrefix}*'
-  ResolveCustomerMarketplaceMangedPolicy:
+  ResolveCustomerMarketplaceManagedPolicy:
     Type: "AWS::IAM::ManagedPolicy"
     Properties:
       PolicyDocument:
@@ -426,7 +426,7 @@ Resources:
         - !ImportValue
           'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
-        - !Ref ResolveCustomerMarketplaceMangedPolicy
+        - !Ref ResolveCustomerMarketplaceManagedPolicy
         - !ImportValue
           'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTableArn'
   InstanceProfile:
