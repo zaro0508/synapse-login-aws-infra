@@ -14,7 +14,7 @@ parameters:
   DNSHostname: "synapse-login-strides"
   DNSDomain: "sagebio-strides.org"
   EC2InstanceType: "t3.small"
-  EC2KeyName: 'strides'
+  EC2KeyName: 'scipool'
   VpcName: "stridespoolvpc"
   SolutionStackName: '64bit Amazon Linux 2018.03 v3.3.10 running Tomcat 8.5 Java 8'
   AutoScalingMinSize: "2"
