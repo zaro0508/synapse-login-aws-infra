@@ -386,6 +386,23 @@ Resources:
             Effect: Allow
             Action: "aws-marketplace:ResolveCustomer"
             Resource: "*"
+  DynamoRWManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DynamoRW
+            Effect: 'Allow'
+            Action:
+              - 'dynamodb:*Get*'
+              - 'dynamodb:*List*'
+              - 'dynamodb:Query'
+              - 'dynamodb:*Write*'
+              - 'dynamodb:*Put*'
+            Resource:
+              - !ImportValue
+                'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTableArn'
   # cloudwatch integration https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.cloudwatchlogs.html
   CloudwatchIntegrationManagedPolicy:
     Type: 'AWS::IAM::ManagedPolicy'
@@ -427,8 +444,7 @@ Resources:
           'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
         - !Ref ResolveCustomerMarketplaceManagedPolicy
-        - !ImportValue
-          'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTableArn'
+        - !Ref DynamoRWManagedPolicy
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:
