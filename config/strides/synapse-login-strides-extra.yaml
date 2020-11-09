@@ -7,8 +7,8 @@ stack_tags:
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
 parameters:
-  Listener80Arn: "arn:aws:elasticloadbalancing:us-east-1:423819316185:listener/app/awseb-AWSEB-WX1JT0B9V11G/e910ca24bdeffb8f/4faeb63ac98bd95b"
-  Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:423819316185:listener/app/awseb-AWSEB-WX1JT0B9V11G/e910ca24bdeffb8f/e38f844ce3026ee7"
+  Listener80Arn: "arn:aws:elasticloadbalancing:us-east-1:423819316185:listener/app/awseb-AWSEB-WA85KZ8T07CD/db78aedcc9d399a4/ba64e1f5f8596981"
+  Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:423819316185:listener/app/awseb-AWSEB-WA85KZ8T07CD/db78aedcc9d399a4/7ab27214720751b9"
   HttpRedirectTarget: "synapse-login-strides.sagebio-strides.org"
   FriendlyEndpoint: "ad.strides.sc.sageit.org"
   CertificateArn: !stack_output_external synapse-login-strides-sageit-cert::SSLCertificateSageIT
