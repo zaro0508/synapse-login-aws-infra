@@ -26,7 +26,6 @@ sceptre_user_data:
     # 3407239 scipool-admin
     #  273957 Sage Bionetworks
     # 3409010 scipoolprod-internal
-    # 3412678 ampad-workinggroup
     # 3412679 ampad-portalusers
     # 3409011 scipoolprod-external
     - Name: TeamToRoleArnMap
@@ -35,7 +34,6 @@ sceptre_user_data:
           {"teamId":"3407239","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"},
           {"teamId":"273957","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"},
           {"teamId":"3409010","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogEndusers"},
-          {"teamId":"3412678","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogExternalEndusers"},
           {"teamId":"3412679","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogExternalEndusers"},
           {"teamId":"3409011","roleArn":"arn:aws:iam::237179673806:role/ServiceCatalogExternalEndusers"}
         ]'
