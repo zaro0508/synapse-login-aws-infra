@@ -246,13 +246,6 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: TEAM_TO_ROLE_ARN_MAP
           Value: "ssm::/service-catalog/TeamToRoleArnMap"
-        - Namespace: 'aws:elasticbeanstalk:application:environment'
-          OptionName: MARKETPLACE_PRODUCT_CODE_SC
-          Value: "ssm::/service-catalog/MarketplaceProductCodeSC"
-        - Namespace: 'aws:elasticbeanstalk:application:environment'
-          OptionName: MARKETPLACE_ID_DYNAMO_TABLE_NAME
-          Value: !ImportValue
-                 'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTable'
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
@@ -376,33 +369,6 @@ Resources:
             Resource:
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OidcClientSecretKeyName}'
               - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SsmParameterPrefix}*'
-  ResolveCustomerMarketplaceManagedPolicy:
-    Type: "AWS::IAM::ManagedPolicy"
-    Properties:
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: ResolveCustomerMarketplace
-            Effect: Allow
-            Action: "aws-marketplace:ResolveCustomer"
-            Resource: "*"
-  DynamoRWManagedPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Properties:
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Sid: DynamoRW
-            Effect: 'Allow'
-            Action:
-              - 'dynamodb:*Get*'
-              - 'dynamodb:*List*'
-              - 'dynamodb:Query'
-              - 'dynamodb:*Write*'
-              - 'dynamodb:*Put*'
-            Resource:
-              - !ImportValue
-                'Fn::Sub': '${AWS::Region}-marketplace-dynamo-MarketplaceDynamoDBTableArn'
   # cloudwatch integration https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/AWSHowTo.cloudwatchlogs.html
   CloudwatchIntegrationManagedPolicy:
     Type: 'AWS::IAM::ManagedPolicy'
@@ -443,8 +409,6 @@ Resources:
         - !ImportValue
           'Fn::Sub': '${AWS::Region}-sc-kms-key-KmsDecryptPolicyArn'
         - !Ref SsmManagedPolicy
-        - !Ref ResolveCustomerMarketplaceManagedPolicy
-        - !Ref DynamoRWManagedPolicy
   InstanceProfile:
     Type: 'AWS::IAM::InstanceProfile'
     Properties:

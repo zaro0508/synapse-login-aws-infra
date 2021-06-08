@@ -33,5 +33,3 @@ sceptre_user_data:
           {"teamId":"3409012","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogEndusers"},
           {"teamId":"3409013","roleArn":"arn:aws:iam::465877038949:role/ServiceCatalogExternalEndusers"}
         ]'
-    - Name: MarketplaceProductCodeSC
-      Value: d3xz0ef8n2bqgnuynummc21w7
