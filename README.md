@@ -1,5 +1,6 @@
 # synapse-login-aws-infra
-Infrastructure for the Synapse login application to the AWS service catalog
+Infrastructure for the login application to allow Synapse users to
+access the AWS service catalog
 
 ## Deployment
 We use[sceptre](https://sceptre.cloudreach.com/latest/about.html) to deploy the
