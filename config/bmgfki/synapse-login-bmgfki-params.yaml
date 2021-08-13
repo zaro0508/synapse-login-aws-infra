@@ -1,0 +1,33 @@
+template_path: remote/ssm-parameters.j2
+stack_name: synapse-login-bmgfki-params
+hooks:
+  before_launch:
+    - !cmd "curl https://{{stack_group_config.admincentral_cf_bucket}}.s3.amazonaws.com/aws-infra/master/ssm-parameters.j2 --create-dirs -o templates/remote/ssm-parameters.j2"
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+sceptre_user_data:
+  Prefix: /service-catalog/
+  Parameters  :
+    - Name: SynapseOauthClientId
+      Value: 100105
+    - Name: AwsRegion
+      Value: us-east-1
+    - Name: SessionTimeoutSeconds
+      Value: 28800
+    - Name: SessionNameClaims
+      Value: userid
+    - Name: SessionTagClaims
+      Value: sub,userid,team,user_name,company,given_name,family_name
+    - Name: RedirectUris
+      Value: https://synapse-login-bmgfki.sagebio-bmgfki.org/synapse,https://connect.sagebio-bmgfki.org/oauth2/idpresponse
+    # Synapse team mapping
+    # 3407239 scipool-admin
+    # 3412678 ampad-workinggroup
+    - Name: TeamToRoleArnMap
+      Value: >-
+        '[
+          {"teamId":"3407239","roleArn":"arn:aws:iam::423819316185:role/ServiceCatalogEndusers"},
+          {"teamId":"3412678","roleArn":"arn:aws:iam::423819316185:role/ServiceCatalogExternalEndusers"}
+        ]'

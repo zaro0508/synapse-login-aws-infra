@@ -1,0 +1,8 @@
+template_path: SageItCert.yaml
+stack_name: synapse-login-bmgfki-sageit-cert
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+parameters:
+  DomainName: "*.sc.sageit.org"

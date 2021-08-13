@@ -1,0 +1,11 @@
+template_path: base.yaml
+stack_name: synapse-login-bmgfki-base
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+dependencies:
+  - bmgfki/synapse-login-bmgfki-sageit-cert.yaml
+parameters:
+  DNSDomainName: "sagebio-bmgfki.org"
+  BeanstalkAppName: "synapse-login"

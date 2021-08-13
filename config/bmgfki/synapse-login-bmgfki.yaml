@@ -1,0 +1,24 @@
+template_path: app.yaml
+stack_name: synapse-login-bmgfki
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+dependencies:
+  - bmgfki/synapse-login-bmgfki-params.yaml
+  - bmgfki/synapse-login-bmgfki-base.yaml
+parameters:
+  AppDeployBucketName: "org-sagebase-bmgfki-synapse-login-bmgfki"
+  SnsBounceNotificationEndpoint: "aws.bmgfki@sagebase.org"
+  SnsNotificationEndpoint: "aws.bmgfki@sagebase.org"
+  DNSHostname: "synapse-login-bmgfki"
+  DNSDomain: "sagebio-bmgfki.org"
+  EC2InstanceType: "t3.small"
+  EC2KeyName: 'scipool'
+  VpcName: "gatespoolvpc"
+  SolutionStackName: '64bit Amazon Linux 2018.03 v3.4.10 running Tomcat 8.5 Java 8'
+  AutoScalingMinSize: "2"
+  AutoScalingMaxSize: "3"
+  RollingUpdateType: "Health"
+  OidcClientSecretKeyName: "/service-catalog/SynapseOauthClientSecret"
+  SsmParameterPrefix: !stack_output_external synapse-login-bmgfki-params::Prefix
