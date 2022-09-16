@@ -1,51 +1,51 @@
-dist: bionic
 language: python
-python: 3.7
+python: 3.9
 cache: pip
-branches:
-  only:
-  - develop
-  - prod
+env:
+  global:
+    - REPO_NAME="${PWD##*/}"
+    - AWS_REGION="us-east-1"
 install:
-  - pipenv install --dev
+  # install awscli v2
+  - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  - unzip awscliv2.zip && sudo ./aws/install
+  # install other tools
+  - pip install pre-commit travis-wait-improved sceptre sceptre-ssm-resolver
+before_script:
+  # Setup AWS CLI profile for multiple AWS accounts
+  - mkdir -p ~/.aws
+  - echo -e "[profile develop]\nsource_profile=ci-user-develop\nrole_arn=${AwsCfServiceRoleArn_develop}\n" > ~/.aws/config
+  - echo -e "[ci-user-develop]\naws_access_key_id=${AwsTravisAccessKey_develop}\naws_secret_access_key=${AwsTravisSecretAccessKey_develop}\n" > ~/.aws/credentials
+  - echo -e "[profile prod]\nsource_profile=ci-user-prod\nrole_arn=${AwsCfServiceRoleArn_prod}\n" >> ~/.aws/config
+  - echo -e "[ci-user-prod]\naws_access_key_id=${AwsTravisAccessKey_prod}\naws_secret_access_key=${AwsTravisSecretAccessKey_prod}\n" >> ~/.aws/credentials
+  - echo -e "[profile strides]\nsource_profile=ci-user-strides\nrole_arn=${AwsCfServiceRoleArn_strides}\n" >> ~/.aws/config
+  - echo -e "[ci-user-strides]\naws_access_key_id=${AwsTravisAccessKey_strides}\naws_secret_access_key=${AwsTravisSecretAccessKey_strides}\n" >> ~/.aws/credentials
+  - echo -e "[profile bmgfki]\nsource_profile=ci-user-bmgfki\nrole_arn=${AwsCfServiceRoleArn_bmgfki}\n" >> ~/.aws/config
+  - echo -e "[ci-user-bmgfki]\naws_access_key_id=${AwsTravisAccessKey_bmgfki}\naws_secret_access_key=${AwsTravisSecretAccessKey_bmgfki}\n" >> ~/.aws/credentials
 stages:
   - name: validate
   - name: deploy-develop
-    if: type = push AND branch = develop
-  - name: deploy-prod   # deploy to all production AWS accounts
-    if: type = push AND branch = prod
+  - name: deploy-prod
+  - name: deploy-strides
+  - name: deploy-bmgfki
 jobs:
-  fast_finish: true
   include:
     - stage: validate
-      name: "validate-templates"
       script:
-        - pipenv run pre-commit run --all-files
+        - pre-commit run --all-files
     - stage: deploy-develop
-      name: "org-sagebase-scipooldev"
+      if: (NOT type IN (pull_request)) AND (branch = develop)
       script:
-        - mkdir -p ~/.aws
-        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_develop" > ~/.aws/config
-        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_develop\naws_secret_access_key=$AwsTravisSecretAccessKey_develop" > ~/.aws/credentials
-        - pipenv run travis-wait-improved --timeout 30m sceptre launch --yes develop
+        - AWS_PROFILE=develop AWS_DEFAULT_REGION=${AWS_REGION} travis_wait 30 sceptre launch --yes develop
     - stage: deploy-prod
-      name: "org-sagebase-scipoolprod"
+      if: (NOT type IN (pull_request)) AND (branch = prod)
       script:
-        - mkdir -p ~/.aws
-        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_prod" > ~/.aws/config
-        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_prod\naws_secret_access_key=$AwsTravisSecretAccessKey_prod" > ~/.aws/credentials
-        - pipenv run travis-wait-improved --timeout 30m sceptre launch --yes prod
-    - stage: deploy-prod
-      name: "org-sagebase-strides"
+        - AWS_PROFILE=prod AWS_DEFAULT_REGION=${AWS_REGION} travis_wait 30 sceptre launch --yes prod
+    - stage: deploy-strides
+      if: (NOT type IN (pull_request)) AND (branch = prod)
       script:
-        - mkdir -p ~/.aws
-        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_strides" > ~/.aws/config
-        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_strides\naws_secret_access_key=$AwsTravisSecretAccessKey_strides" > ~/.aws/credentials
-        - pipenv run travis-wait-improved --timeout 30m sceptre launch --yes strides
-    - stage: deploy-prod
-      name: "org-sagebase-bmgfki"
+        - AWS_PROFILE=strides AWS_DEFAULT_REGION=${AWS_REGION} travis_wait 30 sceptre launch --yes strdies
+    - stage: deploy-bmgfki
+      if: (NOT type IN (pull_request)) AND (branch = prod)
       script:
-        - mkdir -p ~/.aws
-        - echo -e "[default]\nregion=us-east-1\nsource_profile=default\nrole_arn=$AwsCfServiceRoleArn_bmgfki" > ~/.aws/config
-        - echo -e "[default]\nregion=us-east-1\naws_access_key_id=$AwsTravisAccessKey_bmgfki\naws_secret_access_key=$AwsTravisSecretAccessKey_bmgfki" > ~/.aws/credentials
-        - pipenv run travis-wait-improved --timeout 30m sceptre launch --yes bmgfki
+        - AWS_PROFILE=bmgfki AWS_DEFAULT_REGION=${AWS_REGION} travis_wait 30 sceptre launch --yes bmgfki

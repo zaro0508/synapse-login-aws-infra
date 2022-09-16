@@ -7,8 +7,8 @@ stack_tags:
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
 parameters:
-  Listener80Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb-AWSEB-3L9KRYEH2U0F/84c7327220bfd845/3d43c909d5c1fda4"
-  Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb-AWSEB-3L9KRYEH2U0F/84c7327220bfd845/5f5f78672fe11eed"
+  Listener80Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb-AWSEB-670099BKSPFO/fe2c5f1c9b5905cd/9435d431899b15e7"
+  Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb-AWSEB-670099BKSPFO/fe2c5f1c9b5905cd/24eaae2248925912"
   HttpRedirectTarget: "synapse-login-scipooldev.scipooldev.org"
   FriendlyEndpoint: "sc-dev.sageit.org"
   CertificateArn: !stack_output_external synapse-login-scipooldev-sageit-cert::SSLCertificateSageIT
