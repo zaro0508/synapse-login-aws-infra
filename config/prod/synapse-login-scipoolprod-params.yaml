@@ -20,7 +20,7 @@ sceptre_user_data:
     - Name: SessionTagClaims
       Value: sub,userid,team,user_name,company,given_name,family_name
     - Name: RedirectUris
-      Value: https://synapse-login-scipoolprod.scipoolprod.org/synapse,https://connect.scipoolprod.org/oauth2/idpresponse
+      Value: https://synapse-login-scipoolprod.scipoolprod.org/synapse,https://connect.scipoolprod.org/oauth2/idpresponse,https://sc.sageit.org/synapse
     # Synapse team mapping
     # 3407239 scipool-admin
     #  273957 Sage Bionetworks
