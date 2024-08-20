@@ -1,0 +1,22 @@
+# This creates and configures extra ra things after deploying beanstalk apps
+# The template should:
+#   - add a certificate to the existing listener
+AWSTemplateFormatVersion: 2010-09-09
+Description: Beanstalk ELB resources and configs
+Parameters:
+  Listener443Arn:
+    Description: ARN of the ALB https listener created by Beanstalk
+    Type: String
+  CertificateArn:
+    Description: The Sage IT SSL certificate
+    Type: String
+Resources:
+  # Cloudformation does not support adding multiple certificates in Beanstalk
+  # with aws:elbv2:listener:443 -> SSLCertificateArns therefore we configure
+  # the Beanstalk ELB with a CFN resource in a separate step
+  AlbHttpsListenerCertificate:
+    Type: AWS::ElasticLoadBalancingV2::ListenerCertificate
+    Properties:
+      ListenerArn: !Ref Listener443Arn
+      Certificates:
+        - CertificateArn: !Ref CertificateArn
