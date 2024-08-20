@@ -1,0 +1,11 @@
+template_path: app-extra-certificate.yaml
+stack_name: synapse-login-scipooldev-extra
+dependencies:
+  - develop/synapse-login-scipooldev.yaml
+stack_tags:
+  Department: "Platform"
+  Project: "Infrastructure"
+  OwnerEmail: "it@sagebase.org"
+parameters:
+  Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb-AWSEB-670099BKSPFO/fe2c5f1c9b5905cd/24eaae2248925912"
+  CertificateArn: !stack_output_external synapse-login-scipooldev-sageit-cert::SSLCertificateSageIT
