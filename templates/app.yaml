@@ -97,6 +97,12 @@ Parameters:
 Resources:
   LoadBalancerAccessLogsBucket:
     Type: 'AWS::S3::Bucket'
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
   LoadBalancerAccessLogsBucketPolicy:
     Type: "AWS::S3::BucketPolicy"
     Properties:
@@ -330,6 +336,11 @@ Resources:
     Type: 'AWS::S3::Bucket'
     Properties:
       BucketName: !Ref AppDeployBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
   Route53RecordSet:
     Type: 'AWS::Route53::RecordSet'
     Properties:
