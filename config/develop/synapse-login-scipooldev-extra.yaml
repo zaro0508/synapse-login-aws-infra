@@ -7,5 +7,5 @@ stack_tags:
   Project: "Infrastructure"
   OwnerEmail: "it@sagebase.org"
 parameters:
-  Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb-AWSEB-670099BKSPFO/fe2c5f1c9b5905cd/24eaae2248925912"
+  Listener443Arn: "arn:aws:elasticloadbalancing:us-east-1:465877038949:listener/app/awseb--AWSEB-mbSwlQBlKNg7/40f0031b197b4c01/3f6867b248537acb"
   CertificateArn: !stack_output_external synapse-login-scipooldev-sageit-cert::SSLCertificateSageIT
