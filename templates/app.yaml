@@ -448,6 +448,7 @@ Resources:
         - 'arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier'
         - 'arn:aws:iam::aws:policy/AmazonSNSFullAccess'
         - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore'
         - !Ref AppDeployBucketManagedPolicy
         - !Ref CloudwatchIntegrationManagedPolicy
         - !ImportValue
