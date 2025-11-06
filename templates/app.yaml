@@ -86,7 +86,7 @@ Parameters:
   SolutionStackName:
     Type: String
     Description: The Beanstalk solution stack for the app
-    Default: '64bit Amazon Linux 2 v4.9.5 running Tomcat 9 Corretto 8'
+    Default: '64bit Amazon Linux 2 v4.9.8 running Tomcat 9 Corretto 8'
   OidcClientSecretKeyName:
     Description: 'The name of the key that stores the OAuth 2.0 client secret'
     Type: String
