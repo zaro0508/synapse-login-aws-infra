@@ -21,3 +21,4 @@ parameters:
   RollingUpdateType: "Health"
   OidcClientSecretKeyName: "/service-catalog/SynapseOauthClientSecret"
   SsmParameterPrefix: !stack_output_external synapse-login-scipoolprod-params::Prefix
+  SolutionStackName: "64bit Amazon Linux 2 v4.2.18 running Tomcat 8.5 Corretto 8"
