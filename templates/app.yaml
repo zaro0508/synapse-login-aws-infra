@@ -284,6 +284,16 @@ Resources:
         - Namespace: 'aws:elasticbeanstalk:application:environment'
           OptionName: TEAM_TO_ROLE_ARN_MAP
           Value: "ssm::/service-catalog/TeamToRoleArnMap"
+        # Enable Managed Platform or solution stack Updates
+        - Namespace: aws:elasticbeanstalk:managedactions
+          OptionName: ManagedActionsEnabled
+          Value: "true"
+        - Namespace: aws:elasticbeanstalk:managedactions:platformupdate
+          OptionName: UpdateLevel
+          Value: "minor"
+        - Namespace: aws:elasticbeanstalk:managedactions
+          OptionName: PreferredStartTime
+          Value: "Sun:03:00"
   BeanstalkEnvironment:
     Type: 'AWS::ElasticBeanstalk::Environment'
     Properties:
